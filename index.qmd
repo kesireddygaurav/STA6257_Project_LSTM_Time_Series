@@ -1,5 +1,5 @@
 ---
-title: "Report Sample"
+title: "STA6257_Project_LSTM_Time_Series"
 author: "Gaurav Kesireddy"
 date: '`r Sys.Date()`'
 format:
@@ -16,25 +16,24 @@ editor:
 ## Introduction
 
 The LSTM model is a powerful recurrent neural system specially designed
-to overcome the exploding / vanishing gradient problems that typically arise
-when learning long-term dependencies, even when the minimal time lags are very
-long. Overall, this can be prevented by using a constant error carousel (CEC),
-which maintains the error signal within each unit’s cell. As a matter of fact, such
-cells are recurrent networks themselves, with an interesting architecture in the
-way that the CEC is extended with additional features, namely the input gate
-and output gate, forming the memory cell. The self-recurrent connections indicate
-feedback with a lag of one time step. Cite this paper
-[@LSTMreview].
+to overcome the exploding / vanishing gradient problems that typically
+arise when learning long-term dependencies, even when the minimal time
+lags are very long. Overall, this can be prevented by using a constant
+error carousel (CEC), which maintains the error signal within each
+unit's cell. As a matter of fact, such cells are recurrent networks
+themselves, with an interesting architecture in the way that the CEC is
+extended with additional features, namely the input gate and output
+gate, forming the memory cell. The self-recurrent connections indicate
+feedback with a lag of one time step. Cite this paper [@LSTMreview].
 
 ## Methods
 
 ## Analysis and Results
 
-### Data and Vizualisation
-
+### Data and Visualisation
 
 ### Statistical Modeling
 
-### Conlusion
+### Conclusion
 
 ## References
