@@ -1,6 +1,6 @@
 ---
 title: "STA6257_Project_LSTM_Time_Series"
-author: "Gaurav Kesireddy"
+author: "Gaurav Kesireddy, Fariha Moomtaheen, Nitul Singha"
 date: '`r Sys.Date()`'
 format:
   html:
@@ -161,7 +161,7 @@ time.[@chimmula2020time]
 
 ## Analysis and Results
 
-## Data and Visualisation
+## Data and Visualization
 
 ## Statistical Modeling
 
