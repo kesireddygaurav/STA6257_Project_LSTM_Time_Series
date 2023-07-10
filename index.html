@@ -54,6 +54,8 @@ div.csl-indent {
 <link href="index_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="index_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
 
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 </head>
 
@@ -94,22 +96,42 @@ div.csl-indent {
 
 <section id="introduction" class="level2">
 <h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
-<p>The LSTM model is a powerful recurrent neural system specially designed to overcome the exploding / vanishing gradient problems that typically arise when learning long-term dependencies, even when the minimal time lags are very long. Overall, this can be prevented by using a constant error carousel (CEC), which maintains the error signal within each unit’s cell. As a matter of fact, such cells are recurrent networks themselves, with an interesting architecture in the way that the CEC is extended with additional features, namely the input gate and output gate, forming the memory cell. The self-recurrent connections indicate feedback with a lag of one time step. Cite this paper <span class="citation" data-cites="LSTMreview">(<a href="#ref-LSTMreview" role="doc-biblioref">Van Houdt 2020</a>)</span>.</p>
+<p>Recurrent networks can in principle use their feedback connections to store representations of recent input events in form of activation’s (“short-term memory”, as opposed to “long-term memory embodied by slowly changing weights). The most widely used algorithms for learning what to put in short-term memory, however, take too much time or do not work well at all, especially when minimal time lags between inputs and corresponding teacher signals are long. With conventional”Back-Propagation Through Time” or “Real-Time Recurrent Learning”, error signals “flowing backwards in time” tend to either (1) blow up or (2) vanish: the temporal evolution of the back-propagated error exponentially depends on the size of the weights. Case (1) may lead to oscillating weights, while in case (2) learning to bridge long time lags takes a prohibitive amount of time, or does not work at all. Long Short-Term Memory(LSTM), a novel recurrent network architecture in conjunction with an appropriate gradient based learning algorithm comes up as a remedy to solve this problem. It can learn to bridge time intervals in excess of 1000 steps even in case of noisy, in-compressible input sequences, without loss of short term time lag capabilities. This is achieved by an efficient, gradient-based algorithm for an architecture enforcing constant error flow through internal states of special units.<span class="citation" data-cites="hochreiter1997long">(<a href="#ref-hochreiter1997long" role="doc-biblioref">Hochreiter and Schmidhuber 1997</a>)</span> Recurrent neural networks with Long Short-term Memory have emerged as an effective and scalable model for several learning problems related to sequential data. The central idea behind the LSTM architecture is a memory cell which can maintain its state over time, and non-linear gating units which regulate the information flow into and out of the cell. Most modern studies incorporate many improvements that have been made to the LSTM architecture since its original formulation.However, LSTM’s are now applied to many learning problems which differ significantly in scale and nature from the problems that these improvements were initially tested on.<span class="citation" data-cites="greff2016lstm">(<a href="#ref-greff2016lstm" role="doc-biblioref">Greff et al. 2016</a>)</span></p>
+<p>A vanilla LSTM unit is composed of a cell, an input gate, an output gate and a forget gate. This forget gate was not initially a part of the LSTM network, but was proposed later by <span class="citation" data-cites="gers2001lstm">(<a href="#ref-gers2001lstm" role="doc-biblioref">Gers and Schmidhuber 2001</a>)</span> to allow the network to reset its state. The cell remembers values over arbitrary time intervals and the three gates regulate the flow of information associated with the cell.<span class="citation" data-cites="greff2016lstm">(<a href="#ref-greff2016lstm" role="doc-biblioref">Greff et al. 2016</a>)</span></p>
+<p><img src="Vanilla_LSTM.png" class="img-fluid" width="1068"></p>
+<p><strong>Figure 1</strong> Architecture of a typical vanilla LSTM block.</p>
+<p>The LSTM architecture consists of a set of recurrently connected sub-networks, known as memory blocks. The idea behind the memory block is to maintain its state over time and regulate the information flow thought non-linear gating units. The Fig. 1 displays the architecture of a vanilla LSTM block, which involves the gates, the input signal <span class="math inline">\(x^{(t)}\)</span>, the output <span class="math inline">\(y^{(t)}\)</span>, the activation functions and the peephole connections. The output of the block is recurrently connected back to the block input and all of the gates.</p>
+<p>We can describe how the LSTM model works in details by assuming a network comprising N processing blocks and M inputs. The forward pass is this recurrent neural system is described in 6 parts.</p>
+<p><strong>Block input</strong>. This step involves updating the block input component which combines the current input <span class="math inline">\(x^{(t)}\)</span> and the output of that LSTM unit <span class="math inline">\(y^{(t-1)}\)</span> in the last iteration. This can be done as shown below:</p>
+<p><span class="math display">\[z^{(t)} = g(W_zx^{(t)} + R_zy^{(t-1)} + b_z    -     (1) \]</span></p>
+<p>where <span class="math inline">\(W_z\)</span> and <span class="math inline">\(R_z\)</span> are the weights associated with <span class="math inline">\(x^{(t)}\)</span> and <span class="math inline">\(y^{(t-1)}\)</span> respectively while <span class="math inline">\(b_z\)</span> stands for the bias weight vector.</p>
+<p><strong>Input gate</strong>. During this step, we update the input gate that combines the current input <span class="math inline">\(x^{(t)}\)</span>, the output of that LSTM unit <span class="math inline">\(y^{(t-1)}\)</span> and the cell value <span class="math inline">\(c^{(t-1)}\)</span> in the last iteration. This can be done as shown below:</p>
+<p><span class="math display">\[i_{(t)} =\sigma(W_ix^{(t)} + R_iy^{(t-1)} + p_i.c^{(t-1)} + b_i ) -(2) \]</span> where ‘<strong>.</strong>’ denotes point-wise multiplication of two vectors <span class="math inline">\(W_i,R_i\)</span> and <span class="math inline">\(p_i\)</span> are the weights associated with <span class="math inline">\(x^{(t)}\)</span>,<span class="math inline">\(y^{(t-1)}\)</span> and <span class="math inline">\(c^{(t-1)}\)</span> respectively while <span class="math inline">\(b_i\)</span> represents for the bias vector associated with this component.</p>
+<p>In previous steps, the LSTM layer determines which information should be retained in the network’s cell states <span class="math inline">\(c^{(t)}\)</span>. This included the selection of the candidate values <span class="math inline">\(z^{(t)}\)</span> that could potentially be added to the cell states, and the activation values <span class="math inline">\(i^{(t)}\)</span> of the input gates.</p>
+<p><strong>Forget gate</strong>. During this step, the LSTM unit determines which information should be removed from its previous cell states <span class="math inline">\(c^{(t-1)}\)</span>. Therefore, the activation values <span class="math inline">\(f^{(t)}\)</span> of the forget gates at the time step <em>t</em> are calculated based on the current input <span class="math inline">\(x^{(t)}\)</span>, the outputs <span class="math inline">\(y^{(t-1)}\)</span> and the state <span class="math inline">\(c^{(t-1)}\)</span> of the memory cells at the previous time step (t-1), the peephole connections, and the bias terms <span class="math inline">\(b_f\)</span> of the forget gates. This can be done as shown below:</p>
+<p><span class="math display">\[  f_{(t)} = \sigma(W_fx^{(t)} + R_fy^{(t-1)} + p_f.c^{(t-1)} + b_f ) -(3)     \]</span> where <span class="math inline">\(W_f,R_f\)</span> and <span class="math inline">\(p_f\)</span> are the weights associated with <span class="math inline">\(x^{(t)}\)</span>,<span class="math inline">\(y^{(t-1)}\)</span> and <span class="math inline">\(c^{(t-1)}\)</span> respectively while <span class="math inline">\(b_f\)</span> denotes the bias weight vector.</p>
+<p><strong>Cell</strong>. This step computes the cell values, which combines the block input <span class="math inline">\(z^{(t)}\)</span>, the input gate <span class="math inline">\(i^{(t)}\)</span> and the forget gate <span class="math inline">\(f_{(t)}\)</span> with the previous cell value. This can be done as shown below:</p>
+<p><span class="math display">\[  c^{(t)} = z^{(t)}. i^{(t)} + c^{(t-1)}.f^{(t)}-(4) \]</span></p>
+<p><strong>Output gate</strong>. This step calculates the output gate, which combines the current input <span class="math inline">\(x^{(t)}\)</span>, the output of that LSTM unit <span class="math inline">\(y^{(t-1)}\)</span> and the cell value <span class="math inline">\(c^{(t-1)}\)</span> in the last iteration. This can be done as shown below:</p>
+<p><span class="math display">\[  o^{(t)} = \sigma(W_ox^{(t)} + R_oy^{(t-1)} + p_o.c^{(t-1)} + b_o ) -(5) \]</span> where <span class="math inline">\(W_o, R_o\)</span> and <span class="math inline">\(p_o\)</span> are the weights associated with <span class="math inline">\(x^{(t)}\)</span>,<span class="math inline">\(y^{(t-1)}\)</span> and <span class="math inline">\(c^{(t-1)}\)</span> respectively, while <span class="math inline">\(b_o\)</span> denoted for the bias weight vector.</p>
+<p><strong>Block output</strong>. Finally, we calculate the block output, which combines the current cell value <span class="math inline">\(c^{(t)}\)</span> with the current output gate value as follows:</p>
+<p><span class="math display">\[ y^{(t)} = g(c^{(t)}). o^{(t)}-(6) \]</span> In the above steps, <span class="math inline">\(\sigma\)</span>, g and h denote point-wise non-linear activation functions. The logistic sigmoid <span class="math inline">\(\sigma(x) = 1/(1+e^{1-x})\)</span> is used as a gate activation function, while the hyperbolic tangent <span class="math inline">\(g(x)= h(x)= tanh(x)\)</span> is often used as the block input and output activation function.<span class="citation" data-cites="van2020review">(<a href="#ref-van2020review" role="doc-biblioref">Van Houdt, Mosquera, and Nápoles 2020</a>)</span></p>
+<p>A large part of real-world datasets are temporal in nature. Due to its distinctive properties, there are numerous unsolved problems with wide range of applications. Data collected over regular intervals of time is called time-series (TS) data and each data point is equally spaced over time. TS prediction is the method of forecasting upcoming trends/patterns of the given historical dataset with temporal features. A time series (TS) data can be break downed into trend, seasonality and error. A trend in TS can be observed when a certain pattern repeats on regular intervals of time due to external factors. In many real world scenarios, either of trend or seasonality are absent. After finding the nature of TS, various forecasting methods have to be applied on given TS. Given the TS, it is broadly classified into 2 categories i.e. stationary and non-stationary. A series is said to be stationary, if it does not depend on the time components like trend, seasonality effects. Mean and variances of such series are constant with respect to time. Stationary TS is easier to analyze and results skilful forecasting. A TS data is said to non-stationary if it has trend, seasonality effects in it and changes with respect to time. Statistical properties like mean, variance, sand standard deviation also changes with respect to time.<span class="citation" data-cites="chimmula2020time">(<a href="#ref-chimmula2020time" role="doc-biblioref">Chimmula and Zhang 2020</a>)</span></p>
 </section>
 <section id="methods" class="level2">
 <h2 class="anchored" data-anchor-id="methods">Methods</h2>
 </section>
 <section id="analysis-and-results" class="level2">
 <h2 class="anchored" data-anchor-id="analysis-and-results">Analysis and Results</h2>
-<section id="data-and-visualisation" class="level3">
-<h3 class="anchored" data-anchor-id="data-and-visualisation">Data and Visualisation</h3>
 </section>
-<section id="statistical-modeling" class="level3">
-<h3 class="anchored" data-anchor-id="statistical-modeling">Statistical Modeling</h3>
+<section id="data-and-visualisation" class="level2">
+<h2 class="anchored" data-anchor-id="data-and-visualisation">Data and Visualisation</h2>
 </section>
-<section id="conclusion" class="level3">
-<h3 class="anchored" data-anchor-id="conclusion">Conclusion</h3>
+<section id="statistical-modeling" class="level2">
+<h2 class="anchored" data-anchor-id="statistical-modeling">Statistical Modeling</h2>
 </section>
+<section id="conclusion" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
 </section>
 <section id="references" class="level2 unnumbered">
 
@@ -117,8 +139,20 @@ div.csl-indent {
 </section>
 
 <div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" role="list">
-<div id="ref-LSTMreview" class="csl-entry" role="listitem">
-Van Houdt, Mosquera, G. 2020. <span>“A Review on the Long Short-Term Memory Model.”</span> <em>Artificial Intelligence Review</em> 53 (53): 5929–55.
+<div id="ref-chimmula2020time" class="csl-entry" role="listitem">
+Chimmula, Vinay Kumar Reddy, and Lei Zhang. 2020. <span>“Time Series Forecasting of COVID-19 Transmission in Canada Using LSTM Networks.”</span> <em>Chaos, Solitons &amp; Fractals</em> 135: 109864.
+</div>
+<div id="ref-gers2001lstm" class="csl-entry" role="listitem">
+Gers, Felix A, and E Schmidhuber. 2001. <span>“LSTM Recurrent Networks Learn Simple Context-Free and Context-Sensitive Languages.”</span> <em>IEEE Transactions on Neural Networks</em> 12 (6): 1333–40.
+</div>
+<div id="ref-greff2016lstm" class="csl-entry" role="listitem">
+Greff, Klaus, Rupesh K Srivastava, Jan Koutnı́k, Bas R Steunebrink, and Jürgen Schmidhuber. 2016. <span>“LSTM: A Search Space Odyssey.”</span> <em>IEEE Transactions on Neural Networks and Learning Systems</em> 28 (10): 2222–32.
+</div>
+<div id="ref-hochreiter1997long" class="csl-entry" role="listitem">
+Hochreiter, Sepp, and Jürgen Schmidhuber. 1997. <span>“Long Short-Term Memory.”</span> <em>Neural Computation</em> 9 (8): 1735–80.
+</div>
+<div id="ref-van2020review" class="csl-entry" role="listitem">
+Van Houdt, Greg, Carlos Mosquera, and Gonzalo Nápoles. 2020. <span>“A Review on the Long Short-Term Memory Model.”</span> <em>Artificial Intelligence Review</em> 53: 5929–55.
 </div>
 </div></section></div></main>
 <!-- /main column -->

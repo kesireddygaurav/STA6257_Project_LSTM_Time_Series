@@ -15,25 +15,156 @@ editor:
 
 ## Introduction
 
-The LSTM model is a powerful recurrent neural system specially designed
-to overcome the exploding / vanishing gradient problems that typically
-arise when learning long-term dependencies, even when the minimal time
-lags are very long. Overall, this can be prevented by using a constant
-error carousel (CEC), which maintains the error signal within each
-unit's cell. As a matter of fact, such cells are recurrent networks
-themselves, with an interesting architecture in the way that the CEC is
-extended with additional features, namely the input gate and output
-gate, forming the memory cell. The self-recurrent connections indicate
-feedback with a lag of one time step. Cite this paper [@LSTMreview].
+Recurrent networks can in principle use their feedback connections to
+store representations of recent input events in form of activation's
+("short-term memory", as opposed to "long-term memory embodied by slowly
+changing weights). The most widely used algorithms for learning what to
+put in short-term memory, however, take too much time or do not work
+well at all, especially when minimal time lags between inputs and
+corresponding teacher signals are long. With
+conventional"Back-Propagation Through Time" or "Real-Time Recurrent
+Learning", error signals "flowing backwards in time" tend to either (1)
+blow up or (2) vanish: the temporal evolution of the back-propagated
+error exponentially depends on the size of the weights. Case (1) may
+lead to oscillating weights, while in case (2) learning to bridge long
+time lags takes a prohibitive amount of time, or does not work at all.
+Long Short-Term Memory(LSTM), a novel recurrent network architecture in
+conjunction with an appropriate gradient based learning algorithm comes
+up as a remedy to solve this problem. It can learn to bridge time
+intervals in excess of 1000 steps even in case of noisy, in-compressible
+input sequences, without loss of short term time lag capabilities. This
+is achieved by an efficient, gradient-based algorithm for an
+architecture enforcing constant error flow through internal states of
+special units.[@hochreiter1997long] Recurrent neural networks with Long
+Short-term Memory have emerged as an effective and scalable model for
+several learning problems related to sequential data. The central idea
+behind the LSTM architecture is a memory cell which can maintain its
+state over time, and non-linear gating units which regulate the
+information flow into and out of the cell. Most modern studies
+incorporate many improvements that have been made to the LSTM
+architecture since its original formulation.However, LSTM's are now
+applied to many learning problems which differ significantly in scale
+and nature from the problems that these improvements were initially
+tested on.[@greff2016lstm]
+
+A vanilla LSTM unit is composed of a cell, an input gate, an output gate
+and a forget gate. This forget gate was not initially a part of the LSTM
+network, but was proposed later by [@gers2001lstm] to allow the network
+to reset its state. The cell remembers values over arbitrary time
+intervals and the three gates regulate the flow of information
+associated with the cell.[@greff2016lstm]
+
+![](Vanilla_LSTM.png){width="1068"}
+
+**Figure 1** Architecture of a typical vanilla LSTM block.
+
+The LSTM architecture consists of a set of recurrently connected
+sub-networks, known as memory blocks. The idea behind the memory block
+is to maintain its state over time and regulate the information flow
+thought non-linear gating units. The Fig. 1 displays the architecture of
+a vanilla LSTM block, which involves the gates, the input signal
+$x^{(t)}$, the output $y^{(t)}$, the activation functions and the
+peephole connections. The output of the block is recurrently connected
+back to the block input and all of the gates.
+
+We can describe how the LSTM model works in details by assuming a
+network comprising N processing blocks and M inputs. The forward pass is
+this recurrent neural system is described in 6 parts.
+
+**Block input**. This step involves updating the block input component
+which combines the current input $x^{(t)}$ and the output of that LSTM
+unit $y^{(t-1)}$ in the last iteration. This can be done as shown below:
+
+$$z^{(t)} = g(W_zx^{(t)} + R_zy^{(t-1)} + b_z    -     (1) $$
+
+where $W_z$ and $R_z$ are the weights associated with $x^{(t)}$ and
+$y^{(t-1)}$ respectively while $b_z$ stands for the bias weight vector.
+
+**Input gate**. During this step, we update the input gate that combines
+the current input $x^{(t)}$, the output of that LSTM unit $y^{(t-1)}$
+and the cell value $c^{(t-1)}$ in the last iteration. This can be done
+as shown below:
+
+$$i_{(t)} =\sigma(W_ix^{(t)} + R_iy^{(t-1)} + p_i.c^{(t-1)} + b_i ) -(2) $$
+where '**.**' denotes point-wise multiplication of two vectors $W_i,R_i$
+and $p_i$ are the weights associated with $x^{(t)}$,$y^{(t-1)}$ and
+$c^{(t-1)}$ respectively while $b_i$ represents for the bias vector
+associated with this component.
+
+In previous steps, the LSTM layer determines which information should be
+retained in the network's cell states $c^{(t)}$. This included the
+selection of the candidate values $z^{(t)}$ that could potentially be
+added to the cell states, and the activation values $i^{(t)}$ of the
+input gates.
+
+**Forget gate**. During this step, the LSTM unit determines which
+information should be removed from its previous cell states $c^{(t-1)}$.
+Therefore, the activation values $f^{(t)}$ of the forget gates at the
+time step *t* are calculated based on the current input $x^{(t)}$, the
+outputs $y^{(t-1)}$ and the state $c^{(t-1)}$ of the memory cells at the
+previous time step (t-1), the peephole connections, and the bias terms
+$b_f$ of the forget gates. This can be done as shown below:
+
+$$  f_{(t)} = \sigma(W_fx^{(t)} + R_fy^{(t-1)} + p_f.c^{(t-1)} + b_f ) -(3)     $$
+where $W_f,R_f$ and $p_f$ are the weights associated with
+$x^{(t)}$,$y^{(t-1)}$ and $c^{(t-1)}$ respectively while $b_f$ denotes
+the bias weight vector.
+
+**Cell**. This step computes the cell values, which combines the block
+input $z^{(t)}$, the input gate $i^{(t)}$ and the forget gate $f_{(t)}$
+with the previous cell value. This can be done as shown below:
+
+$$  c^{(t)} = z^{(t)}. i^{(t)} + c^{(t-1)}.f^{(t)}-(4) $$
+
+**Output gate**. This step calculates the output gate, which combines
+the current input $x^{(t)}$, the output of that LSTM unit $y^{(t-1)}$
+and the cell value $c^{(t-1)}$ in the last iteration. This can be done
+as shown below:
+
+$$  o^{(t)} = \sigma(W_ox^{(t)} + R_oy^{(t-1)} + p_o.c^{(t-1)} + b_o ) -(5) $$
+where $W_o, R_o$ and $p_o$ are the weights associated with
+$x^{(t)}$,$y^{(t-1)}$ and $c^{(t-1)}$ respectively, while $b_o$ denoted
+for the bias weight vector.
+
+**Block output**. Finally, we calculate the block output, which combines
+the current cell value $c^{(t)}$ with the current output gate value as
+follows:
+
+$$ y^{(t)} = g(c^{(t)}). o^{(t)}-(6) $$ In the above steps, $\sigma$, g
+and h denote point-wise non-linear activation functions. The logistic
+sigmoid $\sigma(x) = 1/(1+e^{1-x})$ is used as a gate activation
+function, while the hyperbolic tangent $g(x)= h(x)= tanh(x)$ is often
+used as the block input and output activation function.[@van2020review]
+
+A large part of real-world datasets are temporal in nature. Due to its
+distinctive properties, there are numerous unsolved problems with wide
+range of applications. Data collected over regular intervals of time is
+called time-series (TS) data and each data point is equally spaced over
+time. TS prediction is the method of forecasting upcoming
+trends/patterns of the given historical dataset with temporal features.
+A time series (TS) data can be break downed into trend, seasonality and
+error. A trend in TS can be observed when a certain pattern repeats on
+regular intervals of time due to external factors. In many real world
+scenarios, either of trend or seasonality are absent. After finding the
+nature of TS, various forecasting methods have to be applied on given
+TS. Given the TS, it is broadly classified into 2 categories i.e.
+stationary and non-stationary. A series is said to be stationary, if it
+does not depend on the time components like trend, seasonality effects.
+Mean and variances of such series are constant with respect to time.
+Stationary TS is easier to analyze and results skilful forecasting. A TS
+data is said to non-stationary if it has trend, seasonality effects in
+it and changes with respect to time. Statistical properties like mean,
+variance, sand standard deviation also changes with respect to
+time.[@chimmula2020time]
 
 ## Methods
 
 ## Analysis and Results
 
-### Data and Visualisation
+## Data and Visualisation
 
-### Statistical Modeling
+## Statistical Modeling
 
-### Conclusion
+## Conclusion
 
 ## References
