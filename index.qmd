@@ -80,7 +80,7 @@ associated with the cell.[@greff2016lstm]
 ![](Vanilla_LSTM.png){width="1068"}
 
 **Figure 1** Architecture of a typical vanilla LSTM
-block.\[@van2020review\]
+block.[@van2020review]
 
 The LSTM architecture consists of a set of recurrently connected
 sub-networks, known as memory blocks. The idea behind the memory block
