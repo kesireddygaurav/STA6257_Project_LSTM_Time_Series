@@ -8,7 +8,7 @@
 
 <meta name="author" content="Gaurav Kesireddy, Fariha Moomtaheen, Nitul Singha">
 
-<title>STA6257_Project_LSTM_Time_Series</title>
+<title>LSTM_Time_Series</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -67,7 +67,7 @@ div.csl-indent {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">STA6257_Project_LSTM_Time_Series</h1>
+<h1 class="title">LSTM_Time_Series</h1>
 </div>
 
 
@@ -103,7 +103,7 @@ div.csl-indent {
 <h2 class="anchored" data-anchor-id="methods">Methods</h2>
 <p>A vanilla LSTM unit is composed of a cell, an input gate, an output gate and a forget gate. This forget gate was not initially a part of the LSTM network, but was proposed later by <span class="citation" data-cites="gers2001lstm">(<a href="#ref-gers2001lstm" role="doc-biblioref">Gers and Schmidhuber 2001</a>)</span> to allow the network to reset its state. The cell remembers values over arbitrary time intervals and the three gates regulate the flow of information associated with the cell.<span class="citation" data-cites="greff2016lstm">(<a href="#ref-greff2016lstm" role="doc-biblioref">Greff et al. 2016</a>)</span></p>
 <p><img src="Vanilla_LSTM.png" class="img-fluid" width="1068"></p>
-<p><strong>Figure 1</strong> Architecture of a typical vanilla LSTM block.[<span class="citation" data-cites="van2020review">Van Houdt, Mosquera, and Nápoles (<a href="#ref-van2020review" role="doc-biblioref">2020</a>)</span>]</p>
+<p><strong>Figure 1</strong> Architecture of a typical vanilla LSTM block.<span class="citation" data-cites="van2020review">(<a href="#ref-van2020review" role="doc-biblioref">Van Houdt, Mosquera, and Nápoles 2020</a>)</span></p>
 <p>The LSTM architecture consists of a set of recurrently connected sub-networks, known as memory blocks. The idea behind the memory block is to maintain its state over time and regulate the information flow thought non-linear gating units. The Fig. 1 displays the architecture of a vanilla LSTM block, which involves the gates, the input signal <span class="math inline">\(x^{(t)}\)</span>, the output <span class="math inline">\(y^{(t)}\)</span>, the activation functions and the peephole connections. The output of the block is recurrently connected back to the block input and all of the gates.</p>
 <p>We can describe how the LSTM model works in details by assuming a network comprising N processing blocks and M inputs. The forward pass is this recurrent neural system is described in 6 parts.</p>
 <p><strong>Block input</strong>. This step involves updating the block input component which combines the current input <span class="math inline">\(x^{(t)}\)</span> and the output of that LSTM unit <span class="math inline">\(y^{(t-1)}\)</span> in the last iteration. This can be done as shown below:</p>
