@@ -47,6 +47,29 @@ applied to many learning problems which differ significantly in scale
 and nature from the problems that these improvements were initially
 tested on.[@greff2016lstm]
 
+A large part of real-world datasets are temporal in nature. Due to its
+distinctive properties, there are numerous unsolved problems with wide
+range of applications. Data collected over regular intervals of time is
+called time-series (TS) data and each data point is equally spaced over
+time. TS prediction is the method of forecasting upcoming
+trends/patterns of the given historical dataset with temporal features.
+A time series (TS) data can be break downed into trend, seasonality and
+error. A trend in TS can be observed when a certain pattern repeats on
+regular intervals of time due to external factors. In many real world
+scenarios, either of trend or seasonality are absent. After finding the
+nature of TS, various forecasting methods have to be applied on given
+TS. Given the TS, it is broadly classified into 2 categories i.e.
+stationary and non-stationary. A series is said to be stationary, if it
+does not depend on the time components like trend, seasonality effects.
+Mean and variances of such series are constant with respect to time.
+Stationary TS is easier to analyze and results skillful forecasting. A
+TS data is said to non-stationary if it has trend, seasonality effects
+in it and changes with respect to time. Statistical properties like
+mean, variance, sand standard deviation also changes with respect to
+time.[@chimmula2020time]
+
+## Methods
+
 A vanilla LSTM unit is composed of a cell, an input gate, an output gate
 and a forget gate. This forget gate was not initially a part of the LSTM
 network, but was proposed later by [@gers2001lstm] to allow the network
@@ -56,7 +79,8 @@ associated with the cell.[@greff2016lstm]
 
 ![](Vanilla_LSTM.png){width="1068"}
 
-**Figure 1** Architecture of a typical vanilla LSTM block.
+**Figure 1** Architecture of a typical vanilla LSTM
+block.\[@van2020review\]
 
 The LSTM architecture consists of a set of recurrently connected
 sub-networks, known as memory blocks. The idea behind the memory block
@@ -136,35 +160,12 @@ sigmoid $\sigma(x) = 1/(1+e^{1-x})$ is used as a gate activation
 function, while the hyperbolic tangent $g(x)= h(x)= tanh(x)$ is often
 used as the block input and output activation function.[@van2020review]
 
-A large part of real-world datasets are temporal in nature. Due to its
-distinctive properties, there are numerous unsolved problems with wide
-range of applications. Data collected over regular intervals of time is
-called time-series (TS) data and each data point is equally spaced over
-time. TS prediction is the method of forecasting upcoming
-trends/patterns of the given historical dataset with temporal features.
-A time series (TS) data can be break downed into trend, seasonality and
-error. A trend in TS can be observed when a certain pattern repeats on
-regular intervals of time due to external factors. In many real world
-scenarios, either of trend or seasonality are absent. After finding the
-nature of TS, various forecasting methods have to be applied on given
-TS. Given the TS, it is broadly classified into 2 categories i.e.
-stationary and non-stationary. A series is said to be stationary, if it
-does not depend on the time components like trend, seasonality effects.
-Mean and variances of such series are constant with respect to time.
-Stationary TS is easier to analyze and results skilful forecasting. A TS
-data is said to non-stationary if it has trend, seasonality effects in
-it and changes with respect to time. Statistical properties like mean,
-variance, sand standard deviation also changes with respect to
-time.[@chimmula2020time]
-
-## Methods
-
 ## Analysis and Results
 
-## Data and Visualization
+### Data and Visualization
 
-## Statistical Modeling
+### Statistical Modeling
 
-## Conclusion
+### Conclusion
 
 ## References
