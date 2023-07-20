@@ -1,5 +1,5 @@
 ---
-title: "LSTM_Time_Series"
+title: "LSTM Time Series"
 author: "Gaurav Kesireddy, Fariha Moomtaheen, Nitul Singha"
 date: '`r Sys.Date()`'
 format:
@@ -35,7 +35,7 @@ intervals in excess of 1000 steps even in case of noisy, in-compressible
 input sequences, without loss of short term time lag capabilities. This
 is achieved by an efficient, gradient-based algorithm for an
 architecture enforcing constant error flow through internal states of
-special units.[@hochreiter1997long] Recurrent neural networks with Long
+special units[@hochreiter1997long]. Recurrent neural networks with Long
 Short-term Memory have emerged as an effective and scalable model for
 several learning problems related to sequential data. The central idea
 behind the LSTM architecture is a memory cell which can maintain its
@@ -45,7 +45,7 @@ incorporate many improvements that have been made to the LSTM
 architecture since its original formulation.However, LSTM's are now
 applied to many learning problems which differ significantly in scale
 and nature from the problems that these improvements were initially
-tested on.[@greff2016lstm]
+tested on[@greff2016lstm].
 
 A large part of real-world datasets are temporal in nature. Due to its
 distinctive properties, there are numerous unsolved problems with wide
@@ -66,7 +66,7 @@ Stationary TS is easier to analyze and results skillful forecasting. A
 TS data is said to non-stationary if it has trend, seasonality effects
 in it and changes with respect to time. Statistical properties like
 mean, variance, sand standard deviation also changes with respect to
-time.[@chimmula2020time]
+time[@chimmula2020time].
 
 ## Methods
 
@@ -75,12 +75,12 @@ and a forget gate. This forget gate was not initially a part of the LSTM
 network, but was proposed later by [@gers2001lstm] to allow the network
 to reset its state. The cell remembers values over arbitrary time
 intervals and the three gates regulate the flow of information
-associated with the cell.[@greff2016lstm]
+associated with the cell[@greff2016lstm].
 
 ![](Vanilla_LSTM.png){width="1068"}
 
 **Figure 1** Architecture of a typical vanilla LSTM
-block.[@van2020review]
+block[@van2020review].
 
 The LSTM architecture consists of a set of recurrently connected
 sub-networks, known as memory blocks. The idea behind the memory block
@@ -99,7 +99,7 @@ this recurrent neural system is described in 6 parts.
 which combines the current input $x^{(t)}$ and the output of that LSTM
 unit $y^{(t-1)}$ in the last iteration. This can be done as shown below:
 
-$$z^{(t)} = g(W_zx^{(t)} + R_zy^{(t-1)} + b_z    -     (1) $$
+$$z^{(t)} = g(W_zx^{(t)} + R_zy^{(t-1)} + b_z)    -     (1) $$
 
 where $W_z$ and $R_z$ are the weights associated with $x^{(t)}$ and
 $y^{(t-1)}$ respectively while $b_z$ stands for the bias weight vector.
@@ -158,14 +158,198 @@ $$ y^{(t)} = g(c^{(t)}). o^{(t)}-(6) $$ In the above steps, $\sigma$, g
 and h denote point-wise non-linear activation functions. The logistic
 sigmoid $\sigma(x) = 1/(1+e^{1-x})$ is used as a gate activation
 function, while the hyperbolic tangent $g(x)= h(x)= tanh(x)$ is often
-used as the block input and output activation function.[@van2020review]
+used as the block input and output activation function[@van2020review].
 
 ## Analysis and Results
 
+**About Dataset** This dataset provides data from **1st January 2013**
+to **24th April 2017** in the city of Delhi, India. The 1 parameter here
+under consideration is **meantemp**
+
 ### Data and Visualization
+
+```{r}
+library(tidyverse) # importing, cleaning, visualising 
+library(tidytext) # working with text
+library(keras) # deep learning with keras
+library(ggplot2)
+mean_temp <- read.csv("DailyDelhiMeanTemp.csv")
+
+
+```
+
+First five observations of the dataset are
+
+```{r}
+mean_temp %>% head()
+```
+
+The time series plot of the dataset is given below with **date** on
+x-axis and **meantemp** on y-axis respectively.
+
+```{r}
+mean_temp$date <- as.Date(mean_temp$date, format = "%m/%d/%Y")
+
+mean_temp$meantemp <- as.numeric(mean_temp$meantemp)
+
+
+ggplot(mean_temp, aes(x = date, y = meantemp)) +
+  geom_line() +
+  labs(x = "Date", y = "Mean Temperature") +
+  ggtitle("Mean Temperature Over Time") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+N = nrow(mean_temp)
+n = round(N *0.8, digits = 0)
+train = mean_temp[1:n, ]
+test  = mean_temp[(n+1):N,  ]
+
+
+```
+
+Transform data to stationary
+
+```{r}
+diffed = diff(train$meantemp, differences = 1)
+head(diffed)
+```
+
+Generally in LSTM the data needs to be in a supervised learning mode.
+That is done by having at least 2 variable: target variable *Y* and
+predictor *X*. To achieve this, we transform the series by lagging the
+series and have the value at *time (t−k)* as the input and value at
+*time t* as the output, for a k-step lagged dataset.
+
+```{r}
+lag_transform <- function(x, k= 1){
+    
+      lagged =  c(rep(NA, k), x[1:(length(x)-k)])
+      DF = as.data.frame(cbind(lagged, x))
+      colnames(DF) <- c( paste0('x-', k), 'x')
+      DF[is.na(DF)] <- 0
+      return(DF)
+}
+supervised = lag_transform(diffed, 1)
+head(supervised)
+```
+
+Split dataset into train and test sets
+
+```{r}
+##N = nrow(supervised)
+##n = round(N *0.8, digits = 0)
+##train = supervised[1:n, ]
+##test  = supervised[(n+1):N,  ]
+```
+
+
+
+```{r}
+scale_data = function(train, test, feature_range = c(0, 1)) {
+  x = train
+  fr_min = feature_range[1]
+  fr_max = feature_range[2]
+  std_train = ((x - min(x) ) / (max(x) - min(x)  ))
+  std_test  = ((test - min(x) ) / (max(x) - min(x)  ))
+  
+  scaled_train = std_train *(fr_max -fr_min) + fr_min
+  scaled_test = std_test *(fr_max -fr_min) + fr_min
+  
+  return( list(scaled_train = as.vector(scaled_train), scaled_test = as.vector(scaled_test) ,scaler= c(min =min(x), max = max(x))) )
+  
+}
+
+
+Scaled = scale_data(train$meantemp, test$meantemp, c(-1, 1))
+
+y_train = Scaled$scaled_train[[2]]
+x_train = Scaled$scaled_train[[1]]
+
+y_test = Scaled$scaled_test[[2]]
+x_test = Scaled$scaled_test[[1]]
+```
+
+
+```{r}
+invert_scaling = function(scaled, scaler, feature_range = c(0, 1)){
+  min = scaler[1]
+  max = scaler[2]
+  t = length(scaled)
+  mins = feature_range[1]
+  maxs = feature_range[2]
+  inverted_dfs = numeric(t)
+  
+  for( i in 1:t){
+    X = (scaled[i]- mins)/(maxs - mins)
+    rawValues = X *(max - min) + min
+    inverted_dfs[i] <- rawValues
+  }
+  return(inverted_dfs)
+}
+```
 
 ### Statistical Modeling
 
+```{r}
+dim(x_train) <- c(length(x_train), 1, 1)
+
+
+X_shape2 = dim(x_train)[2]
+X_shape3 = dim(x_train)[3]
+batch_size = 1                # must be a common factor of both the train and test samples
+units = 1                     # can adjust this, in model tuninig phase
+
+model <- keras_model_sequential() 
+model%>%
+  layer_lstm(units, batch_input_shape = c(batch_size, X_shape2, X_shape3), stateful= TRUE)%>%
+  layer_dense(units = 1)
+```
+
+Compiling the model
+
+```{r}
+model %>% compile(
+  loss = 'mean_squared_error',
+  optimizer = optimizer_adam( learning_rate = 0.02),  ##  optimizer = optimizer_adam( learning_rate = 0.02, decay = 1e-6 ), 
+  metrics = c('accuracy')
+)
+```
+
+```{r}
+summary(model)
+```
+
+```{r}
+Epochs = 50   
+for(i in 1:Epochs ){
+  model %>% fit(x_train, y_train, epochs=1, batch_size=batch_size, verbose=1, shuffle=FALSE)
+  model %>% reset_states()
+}
+```
+
+Predictions
+
+```{r}
+##L = length(x_test)
+##scaler = Scaled$scaler
+##predictions = numeric(L)
+
+##for(i in 1:L){
+##     X = x_test[i]
+##     dim(X) = c(1,1,1)
+##     yhat = model %>% predict(X, batch_size=batch_size)
+##     # invert scaling
+##     yhat = invert_scaling(yhat, scaler,  c(-1, 1))
+##     # invert differencing
+##     yhat  = yhat + mean_temp[(n+i)]
+##     # store
+##     predictions[i] <- yhat
+##}
+```
+
+
 ### Conclusion
+
+### Useful Links
 
 ## References
