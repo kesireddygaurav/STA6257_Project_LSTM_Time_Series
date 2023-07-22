@@ -170,7 +170,7 @@ under consideration is **meantemp**
 
 ```{r}
 library(tidyverse) # importing, cleaning, visualising 
-library(tidytext) # working with text
+# library(tidytext) # working with text
 library(keras) # deep learning with keras
 library(ggplot2)
 mean_temp <- read.csv("DailyDelhiMeanTemp.csv")
@@ -198,6 +198,11 @@ ggplot(mean_temp, aes(x = date, y = meantemp)) +
   labs(x = "Date", y = "Mean Temperature") +
   ggtitle("Mean Temperature Over Time") +
   theme(plot.title = element_text(hjust = 0.5))
+```
+Split dataset into train and test sets
+
+```{r}
+mean_temp$order=seq(1, length(mean_temp$date))
 
 N = nrow(mean_temp)
 n = round(N *0.8, digits = 0)
@@ -221,6 +226,17 @@ series and have the value at *time (t−k)* as the input and value at
 *time t* as the output, for a k-step lagged dataset.
 
 ```{r}
+X = train$meantemp
+
+# min max transformation
+
+X_std = (X - min(X) ) / (max(X) - min(X))
+X_scaled = X_std * (max(X) - min(X)) + min(X)          # not needed
+
+
+```
+
+```{r}
 lag_transform <- function(x, k= 1){
     
       lagged =  c(rep(NA, k), x[1:(length(x)-k)])
@@ -233,14 +249,7 @@ supervised = lag_transform(diffed, 1)
 head(supervised)
 ```
 
-Split dataset into train and test sets
 
-```{r}
-##N = nrow(supervised)
-##n = round(N *0.8, digits = 0)
-##train = supervised[1:n, ]
-##test  = supervised[(n+1):N,  ]
-```
 
 
 
@@ -262,11 +271,11 @@ scale_data = function(train, test, feature_range = c(0, 1)) {
 
 Scaled = scale_data(train$meantemp, test$meantemp, c(-1, 1))
 
-y_train = Scaled$scaled_train[[2]]
-x_train = Scaled$scaled_train[[1]]
+y_train = Scaled$scaled_train
+x_train = train$order
 
-y_test = Scaled$scaled_test[[2]]
-x_test = Scaled$scaled_test[[1]]
+y_test = Scaled$scaled_test
+x_test = test$order
 ```
 
 
@@ -320,6 +329,7 @@ summary(model)
 ```
 
 ```{r}
+
 Epochs = 50   
 for(i in 1:Epochs ){
   model %>% fit(x_train, y_train, epochs=1, batch_size=batch_size, verbose=1, shuffle=FALSE)
@@ -330,24 +340,28 @@ for(i in 1:Epochs ){
 Predictions
 
 ```{r}
-##L = length(x_test)
-##scaler = Scaled$scaler
-##predictions = numeric(L)
+L = length(x_test)
+scaler = Scaled$scaler
+predictions = numeric(L)
 
-##for(i in 1:L){
-##     X = x_test[i]
-##     dim(X) = c(1,1,1)
-##     yhat = model %>% predict(X, batch_size=batch_size)
-##     # invert scaling
-##     yhat = invert_scaling(yhat, scaler,  c(-1, 1))
-##     # invert differencing
-##     yhat  = yhat + mean_temp[(n+i)]
-##     # store
-##     predictions[i] <- yhat
-##}
+for(i in 1:L){
+     X = x_test[i]
+     dim(X) = c(1,1,1)
+     yhat = model %>% predict(X, batch_size=batch_size)
+     # invert scaling
+     yhat = invert_scaling(yhat, scaler,  c(-1, 1))
+     # invert differencing
+     yhat  = yhat + mean_temp$meantemp[(n+i)]
+     # store
+     predictions[i] <- yhat
+}
 ```
 
+```{r}
 
+final <- data.frame(y_test, predictions)
+
+```
 ### Conclusion
 
 ### Useful Links

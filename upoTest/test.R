@@ -43,19 +43,19 @@ par(mfrow = c(2, 1))
 # Plot monthly humidity
 monthly_hum$date <- as.Date(paste0(monthly_hum$date, "-01"), format = "%Y-%m-%d")
 
-png("month_hum.png", width = X, height = Y, units = "px")
+png("month_hum.png")
 plot(monthly_hum$date, monthly_hum$humidity, type = "l", xlab = "Date", ylab = "Humidity", main = "Monthly Humidity")
 dev.off()
 
 
 # Plot annual humidity
-png("annual_hum.png", width = X, height = Y, units = "px")
+png("annual_hum.png")
 plot(as.Date(annual_hum$date, format = "%Y"), annual_hum$humidity, type = "l", xlab = "Date", ylab = "Humidity", main = "Annual Humidity")
 dev.off()
 
 library(vioplot)
 
-png("violin_hum.png", width = X, height = Y, units = "px")
+png("violin_hum.png")
 vioplot(data$humidity ~ as.integer(format(data$date, "%m")), 
         xlab = "Month", ylab = "Humidity",
         main = "Violin Plot of Monthly Humidity",
@@ -78,19 +78,19 @@ par(mfrow = c(2, 1))
 # Plot monthly humidity
 monthly_mtemp$date <- as.Date(paste0(monthly_mtemp$date, "-01"), format = "%Y-%m-%d")
 
-# png("month_mtemp.png", width = X, height = Y, units = "px")
+png("month_mtemp.png")
 plot(monthly_mtemp$date, monthly_mtemp$meantemp, type = "l", xlab = "Date", ylab = "Mean Temperature", main = "Monthly Mean Temperature")
-# dev.off()
+dev.off()
 
 
 # Plot annual humidity
-png("annual_mtemp.png", width = 14, height = 4, units = "px")
+png("annual_mtemp.png")
 plot(as.Date(annual_mtemp$date, format = "%Y"), annual_mtemp$meantemp, type = "l", xlab = "Date", ylab = "Mean Temperature", main = "Annual Mean Temperature")
 dev.off()
 
 library(vioplot)
 
-png("violin_mtemp.png", width = X, height = Y, units = "px")
+png("violin_mtemp.png")
 vioplot(data$meantemp ~ as.integer(format(data$date, "%m")), 
         xlab = "Month", ylab = "Mean Temperature",
         main = "Violin Plot of Monthly Mean Temperature",
