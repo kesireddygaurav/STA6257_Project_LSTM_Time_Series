@@ -220,37 +220,33 @@ series and have the value at *time (t−k)* as the input and value at
 ### Statistical Modeling
 
 ```{r}
-# this code runs on Nitul's computer, but gives error in Fariha's.
-
-# library(TSLSTM)
+library(TSLSTM)
 # 
-# df <- mean_temp
+ df <- mean_temp
 # 
-# df$date<-as.Date(df$date)
+ df$date<-as.Date(df$date)
 # 
-# TSLSTM<-ts.lstm(ts=df$transformed,
-#                 tsLag=5,
-#                 LSTMUnits=7,
-#                 DropoutRate = 0.1,
-#                 Epochs = 10,
-#                 CompLoss = "mse",
-#                 CompMetrics = "mae",
-#                 ActivationFn = "tanh",
-#                 SplitRatio = 0.99,
-#                 ValidationSplit = 0.2)
+ TSLSTM<-ts.lstm(ts=df$transformed,
+                 tsLag=5,
+                 LSTMUnits=7,
+                 DropoutRate = 0.1,
+                 Epochs = 10,
+                 CompLoss = "mse",
+                 CompMetrics = "mae",
+                 ActivationFn = "tanh",
+                 SplitRatio = 0.99,
+                 ValidationSplit = 0.2)
 # 
 # #Return function
-# trainFittedValue <- TSLSTM$TrainFittedValue
-# testPredictedValue <- TSLSTM$TestPredictedValue
-# accuracyTable <- TSLSTM$AccuracyTable
+ trainFittedValue <- TSLSTM$TrainFittedValue
+ testPredictedValue <- TSLSTM$TestPredictedValue
+ accuracyTable <- TSLSTM$AccuracyTable
 # 
-# Result<-tail(df,15)
+ Result<-tail(df,15)
 # 
-# Result$S_pred<-testPredictedValue
+ Result$S_pred<-testPredictedValue
 # 
-# Result$Prediction= Result$S_pred * ( max(df$meantemp) - min(df$meantemp) ) + min(df$meantemp)
-
-
+ Result$Prediction= Result$S_pred * ( max(df$meantemp) - min(df$meantemp) ) + min(df$meantemp)
 ```
 
 
@@ -258,18 +254,13 @@ series and have the value at *time (t−k)* as the input and value at
 
 
 ```{r}
-
-result = read.csv("Result.csv")
-
-result$date <- as.Date(result$date)
-
-ggplot(data = result) +
+Result$date <- as.Date(Result$date)
+ggplot(data = Result) +
   geom_line( aes(x = date, y = meantemp), color = "blue") +
   geom_line( aes(x = date, y = Prediction), color = "red") +
   labs(x = "Date", y = "Original Temperature") +
   ggtitle("Original Temperature Over Time") +
   theme(plot.title = element_text(hjust = 0.5))
-
 ```
 
 
