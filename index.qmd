@@ -87,8 +87,6 @@ library(tidyverse) # importing, cleaning, visualising
 library(keras) # deep learning with keras
 library(ggplot2)
 mean_temp <- read.csv("DailyDelhiMeanTemp.csv")
-
-
 ```
 
 1.  Meantemp:
@@ -107,6 +105,8 @@ mean_temp <- read.csv("DailyDelhiMeanTemp.csv")
     -   Description: Meanpressure stands for the mean atmospheric pressure in hectopascals (hPa) during the data collection.
     -   Data Type: Numerical (Continuous)
     -   Range: The values can vary depending on weather systems but are usually within a certain range of atmospheric pressure.
+
+**We have considered only 'Mean temperature (meantemp)' for this analysis. So we have removed all other attributes from the database.**
 
 First six observations of the dataset are
 
