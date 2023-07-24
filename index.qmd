@@ -338,6 +338,8 @@ ggplot(data = Result) +
 ### Conclusion
 In conclusion, our Time series prediction using LSTM has demonstrated promising results in forecasting accuracy. During the training phase, the root mean square error (RMSE) of 0.0800 and the mean absolute percentage error (MAPE) of 0.1258 indicate that the LSTM model was able to effectively capture the underlying patterns and trends in the training data.
 
+![performance metrics](LSTMconclusion.png)
+
 Upon evaluating the model's performance on the test dataset, we obtained an RMSE of 0.1039 and a MAPE of 0.1274. These results signify that the LSTM model successfully generalized to unseen data, showcasing its ability to make accurate predictions beyond the training data.
 
 Overall, the relatively low values of both RMSE and MAPE for both the training and test phases highlight the effectiveness of the LSTM model in handling time series data. The model's capacity to grasp temporal dependencies and intricate relationships within the data allowed it to produce reliable forecasts.
