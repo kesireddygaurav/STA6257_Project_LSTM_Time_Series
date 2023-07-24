@@ -1,11 +1,11 @@
 ---
-title: "LSTM Time Series"
+title: "Temperature Forecasting Using Long Short Term Memory (LSTM)"
 author: "Gaurav Kesireddy, Fariha Moomtaheen, Nitul Singha"
 date: '`r Sys.Date()`'
 format:
   html:
     code-fold: true
-course: STA 6257 - Advance Statistical Modeling
+course: STA 6257 - Advanced Statistical Modeling
 bibliography: references.bib # file contains bibtex for references
 #always_allow_html: true # this allows to get PDF with HTML features
 editor: 
@@ -15,109 +15,17 @@ editor:
 
 ## Introduction
 
-Recurrent Neural Networks (RNNs) are one of the most popular data-driven
-approaches used for time-series prediction. RNNs benefit from feedback
-loops which makes the output of RNN in one time step to be seen as an
-input in the subsequent one. Having information in a sequential form,
-the input of the RNN in each time step includes the information of the
-corresponding time step in the sequence and the previous information
-provided by a feedback loop[@karevan2020transductive]. A RNN maintains a
-memory based on history information, which enables the model to predict
-the current output conditioned on long distance
-features[@huang2015bidirectional].Recurrent networks can in principle
-use their feedback connections to store representations of recent input
-events in form of activation's ("short-term memory", as opposed to
-"long-term memory embodied by slowly changing weights). The most widely
-used algorithms for learning what to put in short-term memory, however,
-take too much time or do not work well at all, especially when minimal
-time lags between inputs and corresponding teacher signals are long.
-With conventional"Back-Propagation Through Time" or "Real-Time Recurrent
-Learning", error signals "flowing backwards in time" tend to either (1)
-blow up or (2) vanish: the temporal evolution of the back-propagated
-error exponentially depends on the size of the weights. Case (1) may
-lead to oscillating weights, while in case (2) learning to bridge long
-time lags takes a prohibitive amount of time, or does not work at all.
+Recurrent networks have the capability to use feedback connections, enabling them to store recent input events as short-term memory, distinct from the long-term memory represented by slowly changing weights. This feature is highly valuable for various applications, such as speech processing, non-Markovian control, Time Series analysis, and music composition (e.g., Mozer 1992). However, the most widely used algorithms for learning short-term memory suffer from time-consuming processes and limited effectiveness, particularly when dealing with long time lags between inputs and corresponding signals. Despite the theoretical appeal, existing methods do not offer clear practical advantages over backpropagation in feed-forward nets with limited time windows. As a solution to these challenges, the "Long Short Term Memory" (LSTM) presents a novel recurrent network architecture in conjunction with an appropriate gradient-based learning algorithm (Hochreiter and Schmidhuber 1997) [@hochreiter1997long].
 
-Recurrent Neural Networks, often shortened to RNNs, are a class of
-neural networks which exhibit temporal behavior due to directed
-connections between units of an individual layer. Recurrent neural
+LSTM, standing for Long Short-Term Memory, is a gated Recurrent Neural Network (RNN) [@sherstinsky2020fundamentals] specifically designed to address issues related to long-term dependencies and the problems of gradient vanishing or exploding present in traditional RNNs. By incorporating forget gates, input gates, and output gates, LSTM can selectively retain crucial information from time series data based on its features while disregarding irrelevant information. This selective retention enhances LSTM's capability in processing time series data effectively.
 
-networks maintain a hidden vector **h**, which is updated at time step
-*t* as follows:
+The significance of LSTM is evident in its widespread application across various domains of time series data processing. For instance, LSTM has been utilized in tasks like text categorization, sentence generation, and machine translation (Zhu et al. 2019) [@zhu2019novel]. Time series data, which refers to a collection of observations arranged chronologically, holds valuable decision support potential. Time series forecasting has attracted significant attention, and traditional methods for time series prediction can be categorized into linear and nonlinear models.
 
-$$ h_t = tanh(Wh_{t-1}+Ix_t)$$ where tanh is the hyperbolic tangent
-function. **W** is the recurrent weight matrix and **I** is a projection
-matrix. The hidden state **h** is used to make a prediction
+Early on, linear models like AutoRegressive (AR), Moving Average (MA), and AutoRegressive Moving Average (ARMA) were proposed for time series forecasting (Priyamvada and Wadhvani 2017; Zhou and Han 2016; Ge and Kerrigan 2016) [@wadhvani2017review][@mo2016model][@ge2016short]. While computationally simple and effective for stationary time series data, their predictive accuracy is limited when dealing with non-stationary data. To address this limitation, the AutoRegressive Integrated Moving Average (ARIMA) model was introduced (Ho and Xie 1998) [@ho1998use], which combines differencing operations to handle non-stationary data.
 
-$$y_t = softmax(Wh_{t-1})$$ where softmax provides a normalized
-probability distribution over the possible classes, $\sigma$ is the
-logistic sigmoid function and **W** is a weight matrix. By using **h**
-as the input to another RNN, we can stack RNNs, creating deeper
-architectures[@karim2017lstm].
-$$h^l_t = \sigma(Wh^l_{t-1} + Ih^{l-1}_t)$$
+Given that many real-world phenomena exhibit nonlinear behaviors, the focus of research in time series data prediction has shifted towards nonlinear models. Common time series data prediction approaches involve Support Vector Machines (SVM) and neural networks (Vapnik 1996; Hecht-Nielsen 1989) [@vapnik1999nature][@hecht1989theory]. SVM-based methods have been widely proposed and applied in various domains, including ground motion dynamic prediction and fault prediction (Li et al. 2011; Wang et al. 2017) [@li2011time][@wang2017failure]. However, neural networks, particularly Artificial Neural Networks (ANN) and Recurrent Neural Networks (RNN), have gained prominence due to their ability to handle large-scale and nonlinear data (Crone and Kourentzes 2010; Boné et al. 2013) [@crone2010feature][@bone2003boosting]. While the Backpropagation (BP) neural network has demonstrated effectiveness in PM2.5 and traffic prediction (Wang 2019; Chen et al. 2016) [@wang2019prediction][@chen2016daily], RNN has become popular due to its sequential structure capturing timing characteristics, and RNN-based time series prediction methods have shown superior performance (Li et al. 2019) [@li2019water].
 
-Long Short-Term Memory(LSTM), a novel recurrent network architecture in
-conjunction with an appropriate gradient based learning algorithm comes
-up as a remedy to solve this problem. It can learn to bridge time
-intervals in excess of 1000 steps even in case of noisy, in-compressible
-input sequences, without loss of short term time lag capabilities. This
-is achieved by an efficient, gradient-based algorithm for an
-architecture enforcing constant error flow through internal states of
-special units[@hochreiter1997long]. Recurrent neural networks with Long
-Short-term Memory have emerged as an effective and scalable model for
-several learning problems related to sequential data. The central idea
-behind the LSTM architecture is a memory cell which can maintain its
-state over time, and non-linear gating units which regulate the
-information flow into and out of the cell. Most modern studies
-incorporate many improvements that have been made to the LSTM
-architecture since its original formulation.However, LSTM's are now
-applied to many learning problems which differ significantly in scale
-and nature from the problems that these improvements were initially
-tested on[@greff2016lstm].
-
-Due to information explosion in recent years, a large amount of data has
-become available online and manually analyzing this data is not
-feasible. Various supervised and unsupervised machine learning
-techniques have been developed to automatically gather and analyze data
-and make predictions. Deep learning techniques have become the hottest
-tool delivering state-of-the art results in areas as diverse as computer
-vision, speech recognition and NLP problems. But deep learning
-techniques also present a unique set of challenges. The performance of
-deep learning models depends upon a number of parameters called
-hyper-parameters. Hyper-parameters are manually set training variables
-which are determined before training the model. Some automatic
-techniques for tuning hyper-parameters have been proposed but these
-methods don't provide insight to the end-users about the interactions
-between different hyper-parameters and their relative importance. For
-the deep learning model used in this paper, namely LSTM, the important
-hyper-parameters are activation function (sigmoid, tanh, softmax etc.),
-optimizer (Adam, Adadelta, RMSprop etc.), batch size, number of epochs,
-number of hidden layers etc. LSTM can be stateful or
-stateless[@yadav2020optimizing].
-
-A critical area of machine learning is Time Series forecasting, as
-various forecasting problems contain a time component. It is one of the
-most applied data science technique in business, supply chain
-management, and production. A series of observations taken
-chronologically in time is known as a Time Series(TS). A time-series dataset
-is different from other datasets, as it adds a time element. This added
-element is both a limitation and a structure that offers an additional
-source of information[@yamak2019comparison]. TS prediction is the method of forecasting
-upcoming trends/patterns of the given historical dataset with temporal
-features. A time series (TS) data can be break downed into trend,
-seasonality and error. A trend in TS can be observed when a certain
-pattern repeats on regular intervals of time due to external factors. In
-many real world scenarios, either of trend or seasonality are absent.
-After finding the nature of TS, various forecasting methods have to be
-applied on given TS. Given the TS, it is broadly classified into 2
-categories i.e. stationary and non-stationary. A series is said to be
-stationary, if it does not depend on the time components like trend,
-seasonality effects. Mean and variances of such series are constant with
-respect to time. Stationary TS is easier to analyze and results skillful
-forecasting. A TS data is said to non-stationary if it has trend,
-seasonality effects in it and changes with respect to time. Statistical
-properties like mean, variance, sand standard deviation also changes
-with respect to time[@chimmula2020time].
+In order to further enhance prediction accuracy and leverage the memory function for time series, the Long Short-Term Memory Recurrent Neural Network (LSTM-RNN) was introduced (Azzouni and Pujolle 2017; Hu et al. 2020) [@azzouni2017long][@hu2020time]. LSTM-RNN offers an advanced framework for network traffic matrix prediction, demonstrating the potential of LSTM in time series prediction tasks.
 
 ## Methods
 
@@ -211,13 +119,10 @@ sigmoid $\sigma(x) = 1/(1+e^{1-x})$ is used as a gate activation
 function, while the hyperbolic tangent $g(x)= h(x)= tanh(x)$ is often
 used as the block input and output activation function[@van2020review].
 
-## Analysis and Results
 
-**About Dataset** This dataset provides data from **1st January 2013**
-to **24th April 2017** in the city of Delhi, India. The 1 parameter here
-under consideration is **meantemp**
+## Dataset Description
 
-### Data and Visualization
+The weather forecasting dataset for Indian climate in the city of Delhi, India, covers a period from 1st January 2013 to 24th April 2017. The dataset includes four key parameters, each providing insights into the weather conditions during this time frame. The data is meant to be used for training models in weather forecasting and analysis tasks. Below is a detailed description of the dataset parameters:
 
 ```{r}
 library(tidyverse) # importing, cleaning, visualising 
@@ -229,11 +134,41 @@ mean_temp <- read.csv("DailyDelhiMeanTemp.csv")
 
 ```
 
+
+
+1. Meantemp:
+   - Description: Meantemp represents the mean temperature in degrees Celsius for each data entry.
+   - Data Type: Numerical (Continuous)
+   - Range: The values are expected to lie within a specific range, depending on the temperature variations in Delhi throughout the given time period.
+
+2. Humidity:
+   - Description: Humidity refers to the relative humidity level expressed as a percentage.
+   - Data Type: Numerical (Continuous)
+   - Range: The values should be between 0 and 100, representing the percentage of relative humidity.
+
+3. Wind_speed:
+   - Description: Wind_speed indicates the wind speed in kilometers per hour (km/h) at the time of data collection.
+   - Data Type: Numerical (Continuous)
+   - Range: The values are expected to be non-negative, representing different wind speed levels.
+
+4. Meanpressure:
+   - Description: Meanpressure stands for the mean atmospheric pressure in hectopascals (hPa) during the data collection.
+   - Data Type: Numerical (Continuous)
+   - Range: The values can vary depending on weather systems but are usually within a certain range of atmospheric pressure.
+   
 First five observations of the dataset are
 
 ```{r}
 mean_temp %>% head()
 ```
+
+The dataset was collected from the Weather Underground API and prepared as a part of Assignment 4 of the Data Analytics Course in 2019 at PES University, Bangalore. It is important to note that the ownership and credit for this dataset belong to Weather Underground due to its data source.
+
+Researchers, data analysts, and machine learning developers interested in weather forecasting for Delhi, India, can use this dataset to train and evaluate weather prediction models. Understanding the patterns and relationships between the parameters in the dataset can provide valuable insights into weather conditions and trends in the region. However, as with any dataset, it is crucial to preprocess and validate the data to ensure accurate and reliable model predictions.
+
+
+
+### Visualization
 
 The time series plot of the dataset is given below with **date** on
 x-axis and **meantemp** on y-axis respectively.
@@ -251,17 +186,105 @@ ggplot(mean_temp, aes(x = date, y = meantemp)) +
   theme(plot.title = element_text(hjust = 0.5))
 ```
 
-Performing Min Max Transformations on the dataset
+Generally in LSTM the data needs to be in a supervised learning mode.
+That is done by having at least 2 variable: target variable *Y* and
+predictor *X*. To achieve this, we transform the series by lagging the
+series and have the value at *time (t−k)* as the input and value at
+*time t* as the output, for a k-step lagged dataset.
+
+
+### Statistical Modeling
+We have used Min-Max transformation for data preparation. Here, we have used one LSTM layer as a simple LSTM model and a Dense layer is used as the output layer. Then, compile the model using the loss function, optimizer and metrics. This package is based on Keras and TensorFlow modules.[@paul2021performance]
+
+Usage
+ts.lstm(
+ ts,
+ xreg = NULL,
+ tsLag,
+ xregLag = 0,
+ LSTMUnits,
+ DropoutRate = 0,
+ Epochs = 10,
+ CompLoss = "mse",
+ CompMetrics = "mae",
+ ActivationFn = "tanh",
+ SplitRatio = 0.8,
+ ValidationSplit = 0.1
+)
+Arguments
+ts
+Time series data
+xreg
+Exogenous variables
+tsLag
+Lag of time series data
+xregLag
+Lag of exogenous variables
+LSTMUnits
+Number of unit in LSTM layer
+DropoutRate
+Dropout rate
+Epochs
+Number of epochs
+CompLoss
+Loss function
+CompMetrics
+Metrics
+ActivationFn
+Activation function
+SplitRatio
+Training and testing data split ratio
+ValidationSplit
+Validation split ratio
+
+Value
+• TrainFittedValue: Fitted value of train data
+• TestPredictedValue: Predicted value of test data
+• AccuracyTable: RMSE and MAPE of train and test data
+
+#### Vaariables Description
+ts: This argument represents the time series data that you want to model and forecast.
+ 
+xreg: This argument is for specifying exogenous variables, which are additional independent variables that can help improve the accuracy of the time series model.
+ 
+tsLag: This argument defines the lag order for the time series data. It determines how many past observations of the time series should be used as input for the model.
+ 
+xregLag: This argument specifies the lag order for the exogenous variables. It determines how many past observations of the exogenous variables should be used as input for the model.
+ 
+LSTMUnits: This argument sets the number of units (neurons) in the LSTM layer of the model. The LSTM layer is a key component of the long short-term memory (LSTM) neural network architecture used for sequence modeling.
+ 
+DropoutRate: Dropout is a regularization technique used to prevent overfitting in neural networks. This argument allows you to specify the dropout rate, which determines the probability that each neuron will be "dropped out" during training.
+ 
+Epochs: This argument determines the number of training epochs, i.e., the number of times the model will iterate over the entire dataset during training.
+ 
+CompLoss: This argument specifies the loss function to be used for model training. Common choices include mean squared error (MSE) and mean absolute error (MAE).
+ 
+CompMetrics: This argument defines the evaluation metric(s) used to assess model performance. Common metrics include mean absolute percentage error (MAPE) and root mean squared error (RMSE).
+ 
+ActivationFn: This argument sets the activation function for the LSTM layer. Common choices include hyperbolic tangent (tanh), sigmoid, and rectified linear unit (ReLU).
+ 
+SplitRatio: This argument determines the ratio of the data used for training versus testing. For example, a value of 0.8 means that 80% of the data will be used for training, and the remaining 20% will be used for testing.
+ 
+ValidationSplit: This argument specifies the ratio of the training data that will be used for validation during model training. It helps monitor the model's performance on unseen data and prevent overfitting.
+ 
+The function returns several values:
+ 
+TrainFittedValue: Fitted values of the train data, indicating how well the model fits the training data.
+ 
+TestPredictedValue: Predicted values of the test data, representing the model's forecasts for unseen data.
+ 
+AccuracyTable: A table containing the root mean squared error (RMSE) and mean absolute percentage error (MAPE) for both the train and test data. These metrics provide insights into the accuracy of the model's predictions.
+ 
+By using this function with appropriate data and parameter settings, you can train an LSTM-based time series model, generate forecasts, and assess the model's performance.
 
 ```{r}
-mean_temp$order=seq(1, length(mean_temp$date))
 
 # Perform min-max transformation on 'meantemp' column and store in a new column 'transformed'
 mean_temp$transformed <- (mean_temp$meantemp - min(mean_temp$meantemp)) / (max(mean_temp$meantemp) - min(mean_temp$meantemp))
 
 ```
 
-### Statistical Modeling
+We performed min-max transformation on our Mean Temperature to keep it in the range from (-1 to 1) as we are going to use *tanh* Gate for our model.
 
 ```{r}
 library(TSLSTM)
@@ -274,7 +297,7 @@ library(TSLSTM)
                  tsLag=5,
                  LSTMUnits=7,
                  DropoutRate = 0.1,
-                 Epochs = 20,
+                 Epochs = 10,
                  CompLoss = "mse",
                  CompMetrics = "mae",
                  ActivationFn = "tanh",
@@ -293,30 +316,41 @@ library(TSLSTM)
  Result$Prediction= Result$S_pred * ( max(df$meantemp) - min(df$meantemp) ) + min(df$meantemp)
 ```
 
-Plotting the Actual vs Predicted values in one visualization.
+#### Accuracy table
 
 ```{r}
-# Calculate label positions
-label_pos <- data.frame(label = c("Original", "Prediction"),
-                        y = c(max(Result$meantemp), max(Result$Prediction)),
-                        label_color = c("blue", "red"))
+print(accuracyTable)
 
+```
+#### Model Validation plot
+
+```{r}
+Result$date <- as.Date(Result$date)
 ggplot(data = Result) +
-  geom_line(aes(x = date, y = meantemp), color = "blue") +
-  geom_line(aes(x = date, y = Prediction), color = "red") +
-  labs(x = "Date", y = "Mean Temperature (°C)",  # Updated y-axis label with units
-       title = "Original Temperature Over Time") +  # Plot title
-  annotate("text", x = max(Result$date) + 1, y = label_pos$y, 
-           label = label_pos$label, color = label_pos$label_color, vjust = 0.5) +
-  theme(axis.text.y = element_text(size = 12),   # Set font size for y-axis tick labels
-        axis.title.y = element_text(size = 14),  # Set font size for y-axis label
-        axis.text.x = element_text(size = 12),   # Set font size for x-axis tick labels
-        axis.title.x = element_text(size = 14),  # Set font size for x-axis label
-        plot.title = element_text(size = 16, hjust = 0.5))  # Set font size for plot title
+  geom_line( aes(x = date, y = meantemp), color = "blue") +
+  geom_line( aes(x = date, y = Prediction), color = "red") +
+  labs(x = "Date", y = "Temperature") +
+  ggtitle("Original VS Predicted Temprature Over Time") +
+  theme(plot.title = element_text(hjust = 0.5))
 ```
 
-### Conclusion
 
-### Useful Links
+### Conclusion
+In conclusion, our Time series prediction using LSTM has demonstrated promising results in forecasting accuracy. During the training phase, the root mean square error (RMSE) of 0.0800 and the mean absolute percentage error (MAPE) of 0.1258 indicate that the LSTM model was able to effectively capture the underlying patterns and trends in the training data.
+
+Upon evaluating the model's performance on the test dataset, we obtained an RMSE of 0.1039 and a MAPE of 0.1274. These results signify that the LSTM model successfully generalized to unseen data, showcasing its ability to make accurate predictions beyond the training data.
+
+Overall, the relatively low values of both RMSE and MAPE for both the training and test phases highlight the effectiveness of the LSTM model in handling time series data. The model's capacity to grasp temporal dependencies and intricate relationships within the data allowed it to produce reliable forecasts.
+
+However, as with any predictive model, there may still be room for further improvement and fine-tuning to enhance the model's performance. Additionally, the choice of hyperparameters and the size of the dataset could have an impact on the model's accuracy.
+
+In conclusion, this LSTM-based Time series prediction model shows promise and can be a valuable tool for forecasting future values in various domains. Further research and experimentation can help refine the model and unlock even greater predictive capabilities.
+
+## Acknowledgement
+
+• This dataset ownership and collection credit goes to Weather Undergroud API.
+
+• Special thanks to Dr. Achraf Cohen for all his guidance throughout the project.
 
 ## References
+
