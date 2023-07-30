@@ -15,6 +15,8 @@ execute:
   message: false
 ---
 
+[Quarto Presentation](slides.html)
+
 ## Introduction
 
 Recurrent Neural Networks (RNNs) are one of the most popular data-driven approaches used for time-series prediction. RNNs benefit from feedback loops which makes the output of RNN in one time step to be seen as an input in the subsequent one. Having information in a sequential form, the input of the RNN in each time step includes the information of the corresponding time step in the sequence and the previous information provided by a feedback loop[@karevan2020transductive]. Recurrent networks have the capability to use feedback connections, enabling them to store recent input events as short-term memory, distinct from the long-term memory represented by slowly changing weights. This feature is highly valuable for various applications, such as speech processing, non-Markovian control, Time Series analysis, and music composition. However, the most widely used algorithms for learning short-term memory suffer from time-consuming processes and limited effectiveness, particularly when dealing with long time lags between inputs and corresponding signals. Despite the theoretical appeal, existing methods do not offer clear practical advantages over backpropagation in feed-forward nets with limited time windows. As a solution to these challenges, the "Long Short Term Memory" (LSTM) presents a novel recurrent network architecture in conjunction with an appropriate gradient-based learning algorithm [@hochreiter1997long].
@@ -80,7 +82,9 @@ $$ y^{(t)} = g(c^{(t)}). o^{(t)}-(6) $$ In the above steps, $\sigma$, g and h de
 The weather forecasting dataset for Indian climate in the city of Delhi, India, covers a period from 1st January 2013 to 24th April 2017. The dataset includes four key parameters, each providing insights into the weather conditions during this time frame. The data is meant to be used for training models in weather forecasting and analysis tasks. Below is a detailed description of the dataset parameters:
 
 ```{r}
-library(tidyverse) # importing, cleaning, visualising 
+library(tidyverse) # importing, cleaning, visualising
+library(tidytext) # working with text	
+library(keras) # deep learning with keras	
 library(ggplot2)
 mean_temp <- read.csv("DailyDelhiMeanTemp.csv")
 ```
@@ -186,12 +190,17 @@ We performed min-max transformation on our Mean Temperature to keep it in the ra
 
 ```{r}
 library(TSLSTM)
-# 
- df <- mean_temp
-# 
- df$date<-as.Date(df$date)
-# 
- TSLSTM<-ts.lstm(ts=df$transformed,
+
+df <- mean_temp
+
+df$date<-as.Date(df$date)
+
+df$transformed<-as.numeric(df$transformed)
+
+# Convert the data to a time series object (ts)
+ts_data <- ts(df$transformed)
+ 
+TSLSTM <- ts.lstm(ts=ts_data,
                  tsLag=5,
                  LSTMUnits=7,
                  DropoutRate = 0.1,
@@ -201,17 +210,17 @@ library(TSLSTM)
                  ActivationFn = "tanh",
                  SplitRatio = 0.99,
                  ValidationSplit = 0.2)
-# 
-# #Return function
- trainFittedValue <- TSLSTM$TrainFittedValue
- testPredictedValue <- TSLSTM$TestPredictedValue
- accuracyTable <- TSLSTM$AccuracyTable
-# 
- Result<-tail(df,15)
-# 
- Result$S_pred<-testPredictedValue
-# 
- Result$Prediction= Result$S_pred * ( max(df$meantemp) - min(df$meantemp) ) + min(df$meantemp)
+ 
+#Return function
+trainFittedValue <- TSLSTM$TrainFittedValue
+testPredictedValue <- TSLSTM$TestPredictedValue
+accuracyTable <- TSLSTM$AccuracyTable
+
+Result<-tail(df,15)
+
+Result$S_pred<-testPredictedValue
+
+Result$Prediction= Result$S_pred * ( max(df$meantemp) - min(df$meantemp) ) + min(df$meantemp)
 ```
 
 #### Accuracy table
