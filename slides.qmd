@@ -15,21 +15,21 @@ execute:
 
 ## Introduction
 
-Recurrent Neural Networks (RNNs) are one of the most popular data-driven approaches used for time-series prediction. RNNs benefit from feedback loops which makes the output of RNN in one time step to be seen as an input in the subsequent one. Having information in a sequential form, the input of the RNN in each time step includes the information of the corresponding time step in the sequence and the previous information provided by a feedback loop[@karevan2020transductive]. "Long Short Term Memory" (LSTM) presents a novel recurrent network architecture in conjunction with an appropriate gradient-based learning algorithm [@hochreiter1997long].
+-   Long Short-Term Memory(LSTM) is a gated Recurrent Neural Network (RNN) designed to address issues related to long-term dependencies and the problems of gradient vanishing or exploding present in traditional RNNs by [@hochreiter1997long].
+
+-   By incorporating forget gates, input gates, and output gates, LSTM can selectively retain crucial information from time series data based on its features while disregarding irrelevant information.
+
+-   The central idea is a memory cell which can maintain its state over time, and non-linear gating units which regulate the information flow into and out of the cell [@greff2016lstm].
 
 ## Introduction Cont..
 
-LSTM, standing for Long Short-Term Memory, is a gated Recurrent Neural Network (RNN) [@sherstinsky2020fundamentals] specifically designed to address issues related to long-term dependencies and the problems of gradient vanishing or exploding present in traditional RNNs. By incorporating forget gates, input gates, and output gates, LSTM can selectively retain crucial information from time series data based on its features while disregarding irrelevant information. The central idea behind the LSTM architecture is a memory cell which can maintain its state over time, and non-linear gating units which regulate the information flow into and out of the cell [@greff2016lstm].
+-   LSTM has been utilized in tasks like text categorization, sentence generation, and machine translation [@zhu2019novel].
 
-## Introduction Cont..
+-   Early on, linear models like Auto-Regressive (AR), Moving Average (MA), and Auto-Regressive Moving Average (ARMA) were proposed for time series forecasting [@wadhvani2017review][@mo2016model][@ge2016short].
 
-The significance of LSTM is evident for instance, LSTM has been utilized in tasks like text categorization, sentence generation, and machine translation [@zhu2019novel]. Early on, linear models like Auto-Regressive (AR), Moving Average (MA), and Auto-Regressive Moving Average (ARMA) were proposed for time series forecasting [@wadhvani2017review][@mo2016model][@ge2016short]. The Auto-Regressive Integrated Moving Average (ARIMA) model was introduced [@ho1998use], which combines differencing operations to handle non-stationary data.
+-   The Auto-Regressive Integrated Moving Average (ARIMA) model was introduced [@ho1998use], which combines differencing operations to handle non-stationary data.
 
 ## Methods
-
-A vanilla LSTM unit is composed of a cell, an input gate, an output gate and a forget gate. This forget gate was not initially a part of the LSTM network, but was proposed later by [@gers2001lstm] to allow the network to reset its state. The cell remembers values over arbitrary time intervals and the three gates regulate the flow of information associated with the cell[@greff2016lstm].
-
-## Methods Cont..
 
 ![](Vanilla_LSTM.png){top="100" right="100" fig-align="center" width="691" height="306"}
 
@@ -37,7 +37,19 @@ A vanilla LSTM unit is composed of a cell, an input gate, an output gate and a f
 
 ## Methods Cont..
 
-The LSTM architecture consists of a set of recurrently connected sub-networks, known as memory blocks. The idea behind the memory block is to maintain its state over time and regulate the information flow thought non-linear gating units. The Fig. 1 displays the architecture of a vanilla LSTM block, which involves the gates, the input signal $x^{(t)}$, the output $y^{(t)}$, the activation functions and the peephole connections. The output of the block is recurrently connected back to the block input and all of the gates.
+-   A vanilla LSTM unit is composed of a cell, an input gate, an output gate and a forget gate.
+
+-   The forget gate was not initially a part of the LSTM network, but was proposed later by [@gers2001lstm] to allow the network to reset its state.
+
+-   The cell remembers values over arbitrary time intervals and the three gates regulate the flow of information associated with the cell[@greff2016lstm].
+
+## Methods Cont..
+
+-   The LSTM architecture consists of a set of recurrently connected sub-networks, known as memory blocks.
+
+-   The idea behind the memory block is to maintain its state over time and regulate the information flow thought non-linear gating units.
+
+-   The output of the block is recurrently connected back to the block input and all of the gates.
 
 ## Methods Cont..
 
@@ -45,24 +57,15 @@ Lets assume a network comprising N processing blocks and M inputs. The forward p
 
 **Block input**. This step involves updating the block input component which combines the current input $x^{(t)}$ and the output of that LSTM unit $y^{(t-1)}$ in the last iteration. This can be done as shown below: $$z^{(t)} = g(W_zx^{(t)} + R_zy^{(t-1)} + b_z)    -     (1) $$
 
-where $W_z$ and $R_z$ are the weights associated with $x^{(t)}$ and $y^{(t-1)}$ respectively while $b_z$ stands for the bias weight vector.
+## Methods Cont..
+
+**Input gate**. During this step, we update the input gate that combines the current input $x^{(t)}$, the output of that LSTM unit $y^{(t-1)}$ and the cell value $c^{(t-1)}$ in the last iteration. This can be done as shown below: $$i_{(t)} =\sigma(W_ix^{(t)} + R_iy^{(t-1)} + p_i.c^{(t-1)} + b_i ) -(2) $$
 
 ## Methods Cont..
 
-**Input gate**. During this step, we update the input gate that combines the current input $x^{(t)}$, the output of that LSTM unit $y^{(t-1)}$ and the cell value $c^{(t-1)}$ in the last iteration. This can be done as shown below: 
-$$i_{(t)} =\sigma(W_ix^{(t)} + R_iy^{(t-1)} + p_i.c^{(t-1)} + b_i ) -(2) $$  
+**Forget gate**. During this step, the LSTM unit determines which information should be removed from its previous cell states $c^{(t-1)}$. Therefore, the activation values $f^{(t)}$ of the forget gates at the time step *t* are calculated based on the current input $x^{(t)}$, the outputs $y^{(t-1)}$ and the state $c^{(t-1)}$ of the memory cells at the previous time step (t-1), the peephole connections, and the bias terms $b_f$ of the forget gates. This can be done as shown below: $$  f_{(t)} = \sigma(W_fx^{(t)} + R_fy^{(t-1)} + p_f.c^{(t-1)} + b_f ) -(3)     $$
 
 ## Methods Cont..
-
-Here '**.**' denotes point-wise multiplication of two vectors $W_i,R_i$ and $p_i$ are the weights associated with $x^{(t)}$,$y^{(t-1)}$ and $c^{(t-1)}$ respectively while $b_i$ represents for the bias vector associated with this component. In previous steps, the LSTM layer determines which information should be retained in the network's cell states $c^{(t)}$. This included the selection of the candidate values $z^{(t)}$ that could potentially be added to the cell states, and the activation values $i^{(t)}$ of the input gates.
-
-## Methods Cont..
-
-**Forget gate**. During this step, the LSTM unit determines which information should be removed from its previous cell states $c^{(t-1)}$. Therefore, the activation values $f^{(t)}$ of the forget gates at the time step *t* are calculated based on the current input $x^{(t)}$, the outputs $y^{(t-1)}$ and the state $c^{(t-1)}$ of the memory cells at the previous time step (t-1), the peephole connections, and the bias terms $b_f$ of the forget gates. This can be done as shown below: 
-$$  f_{(t)} = \sigma(W_fx^{(t)} + R_fy^{(t-1)} + p_f.c^{(t-1)} + b_f ) -(3)     $$ 
-
-## Methods Cont..
-Here $W_f,R_f$ and $p_f$ are the weights associated with $x^{(t)}$,$y^{(t-1)}$ and $c^{(t-1)}$ respectively while $b_f$ denotes the bias weight vector.
 
 **Cell**. This step computes the cell values, which combines the block input $z^{(t)}$, the input gate $i^{(t)}$ and the forget gate $f_{(t)}$ with the previous cell value. This can be done as shown below:
 
@@ -72,40 +75,28 @@ $$  c^{(t)} = z^{(t)}. i^{(t)} + c^{(t-1)}.f^{(t)}-(4) $$
 
 **Output gate**. This step calculates the output gate, which combines the current input $x^{(t)}$, the output of that LSTM unit $y^{(t-1)}$ and the cell value $c^{(t-1)}$ in the last iteration. This can be done as shown below:
 
-$$  o^{(t)} = \sigma(W_ox^{(t)} + R_oy^{(t-1)} + p_o.c^{(t-1)} + b_o ) -(5) $$ where $W_o, R_o$ and $p_o$ are the weights associated with $x^{(t)}$,$y^{(t-1)}$ and $c^{(t-1)}$ respectively, while $b_o$ denoted for the bias weight vector.
+$$  o^{(t)} = \sigma(W_ox^{(t)} + R_oy^{(t-1)} + p_o.c^{(t-1)} + b_o ) -(5) $$
 
 ## Methods Cont..
 
 **Block output**. Finally, we calculate the block output, which combines the current cell value $c^{(t)}$ with the current output gate value as follows:
 
-$$ y^{(t)} = g(c^{(t)}). o^{(t)}-(6) $$ In the above steps, $\sigma$, g and h denote point-wise non-linear activation functions. The logistic sigmoid $\sigma(x) = 1/(1+e^{1-x})$ is used as a gate activation function, while the hyperbolic tangent $g(x)= h(x)= tanh(x)$ is often used as the block input and output activation function[@van2020review].
+$$ y^{(t)} = g(c^{(t)}). o^{(t)}-(6) $$ In the above steps, $\sigma$, g and h denote point-wise non-linear activation functions.
+
+-   The logistic sigmoid $\sigma(x) = 1/(1+e^{1-x})$ is used as a gate activation function and the hyperbolic tangent $g(x)= h(x)= tanh(x)$ is often used as the block input and output activation function[@van2020review].
 
 ## Dataset Description
 
-The weather forecasting dataset for Indian climate in the city of Delhi, India, covers a period from 1st January 2013 to 24th April 2017. The dataset includes four key parameters, each providing insights into the weather conditions during this time frame. The data is meant to be used for training models in weather forecasting and analysis tasks.
+-   The weather forecasting dataset for Indian climate in the city of Delhi, India, covers a period from 1st January 2013 to 24th April 2017.
 
-## Dataset Description Cont..
+-   The dataset includes four key parameters, each providing insights into the weather conditions during this time frame. These are mean temp, humidity, wind speed, mean pressure.
 
-Below is a detailed description of the dataset parameters:
-
-1.  Meantemp:
-    -   Description: Meantemp represents the mean temperature in degrees Celsius for each data entry.
-2.  Humidity:
-    -   Description: Humidity refers to the relative humidity level expressed as a percentage.
-
-## Dataset Description Cont..
-
-3.  Wind_speed:
-    -   Description: Wind_speed indicates the wind speed in kilometers per hour (km/h) at the time of data collection.
-4.  Meanpressure:
-    -   Description: Meanpressure stands for the mean atmospheric pressure in hectopascals (hPa) during the data collection.
-
-**We have considered only 'Mean temperature (meantemp)' for this analysis. So we have removed all other attributes from the database.**
+-   We have considered only 'Mean temperature (meantemp)' for this analysis. So we have removed all other attributes from the database.
 
 ## Dataset Description Cont..
 
 ```{r}
-library(tidyverse) # importing, cleaning, visualising 
+library(tidyverse) 
 library(ggplot2)
 library(tensorflow)
 library(keras)
@@ -142,48 +133,6 @@ ggplot(mean_temp, aes(x = date, y = meantemp)) +
 We have used Min-Max transformation for data preparation. Here, we have used one LSTM layer as a simple LSTM model and a Dense layer is used as the output layer. Then, compile the model using the loss function, optimizer and metrics. This package is based on Keras and TensorFlow modules.[@paul2021performance]
 
 Usage: ts.lstm( ts, xreg = NULL, tsLag, xregLag = 0, LSTMUnits, DropoutRate = 0, Epochs = 10, CompLoss = "mse", CompMetrics = "mae", ActivationFn = "tanh", SplitRatio = 0.8, ValidationSplit = 0.1 )
-
-## Variables Description
-
-ts: This argument represents the time series data that you want to model and forecast.
-
-xreg: This argument is for specifying exogenous variables, which are additional independent variables that can help improve the accuracy of the time series model.
-
-tsLag: This argument defines the lag order for the time series data. It determines how many past observations of the time series should be used as input for the model.
-
-## Variables Description Cont..
-
-xregLag: This argument specifies the lag order for the exogenous variables. It determines how many past observations of the exogenous variables should be used as input for the model.
-
-LSTMUnits: This argument sets the number of units (neurons) in the LSTM layer of the model. The LSTM layer is a key component of the long short-term memory (LSTM) neural network architecture used for sequence modeling.
-
-DropoutRate: Dropout is a regularization technique used to prevent overfitting in neural networks.
-
-## Variables Description Cont..
-
-Epochs: This argument determines the number of training epochs, i.e., the number of times the model will iterate over the entire dataset during training.
-
-CompLoss: This argument specifies the loss function to be used for model training. Common choices include mean squared error (MSE) and mean absolute error (MAE).
-
-CompMetrics: This argument defines the evaluation metric(s) used to assess model performance. Common metrics include mean absolute percentage error (MAPE) and root mean squared error (RMSE).
-
-## Variables Description Cont..
-
-ActivationFn: This argument sets the activation function for the LSTM layer. Common choices include hyperbolic tangent (tanh), sigmoid, and rectified linear unit (ReLU).
-
-SplitRatio: This argument determines the ratio of the data used for training versus testing. For example, a value of 0.8 means that 80% of the data will be used for training, and the remaining 20% will be used for testing.
-
-ValidationSplit: This argument specifies the ratio of the training data that will be used for validation during model training. It helps monitor the model's performance on unseen data and prevent overfitting.
-
-## Variables Description Cont..
-
-The function returns several values:
-
-**TrainFittedValue:** Fitted values of the train data, indicating how well the model fits the training data.
-
-**TestPredictedValue:** Predicted values of the test data, representing the model's forecasts for unseen data.
-
-**AccuracyTable:** A table containing the root mean squared error (RMSE) and mean absolute percentage error (MAPE) for both the train and test data. These metrics provide insights into the accuracy of the model's predictions.
 
 ## Min-Max Transformation
 
@@ -228,7 +177,7 @@ library(TSLSTM)
  Result$Prediction= Result$S_pred * ( max(df$meantemp) - min(df$meantemp) ) + min(df$meantemp)
 ```
 
-## Accuracy table
+### Accuracy table
 
 ```{r}
 print(accuracyTable)
@@ -265,9 +214,11 @@ Our Time series prediction using LSTM has demonstrated promising results in fore
 
 ## Conclusion Cont..
 
-Upon evaluating the model's performance on the test dataset, we obtained an RMSE of 0.1039 and a MAPE of 0.1274. These results signify that the LSTM model successfully generalized to unseen data, showcasing its ability to make accurate predictions beyond the training data.
+-   Upon evaluating the model's performance on the test dataset, we obtained an RMSE of 0.1039 and a MAPE of 0.1274.
 
-Overall, the relatively low values of both RMSE and MAPE for both the training and test phases highlight the effectiveness of the LSTM model in handling time series data. The model's capacity to grasp temporal dependencies and intricate relationships within the data allowed it to produce reliable forecasts.
+-   These results signify that the LSTM model successfully generalized to unseen data, showcasing its ability to make accurate predictions beyond the training data.
+
+-   Overall, the relatively low values of both RMSE and MAPE for both the training and test phases highlight the effectiveness of the LSTM model in handling time series data.
 
 ## Acknowledgement
 
