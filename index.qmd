@@ -15,7 +15,7 @@ execute:
   message: false
 ---
 
-[Quarto Presentation](slides.html)
+[Quarto-Presentation](https://kesireddygaurav.github.io/STA6257_Project_LSTM_Time_Series/slides.html)
 
 ## Introduction
 
