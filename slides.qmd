@@ -37,17 +37,9 @@ execute:
 
 ## Methods Cont..
 
--   A vanilla LSTM unit is composed of a cell, an input gate, an output gate and a forget gate.
-
--   The forget gate was not initially a part of the LSTM network, but was proposed later by [@gers2001lstm] to allow the network to reset its state.
-
--   The cell remembers values over arbitrary time intervals and the three gates regulate the flow of information associated with the cell[@greff2016lstm].
-
-## Methods Cont..
-
 -   The LSTM architecture consists of a set of recurrently connected sub-networks, known as memory blocks.
 
--   The idea behind the memory block is to maintain its state over time and regulate the information flow thought non-linear gating units.
+-   The idea behind the memory block is to maintain its state over time and regulate the information flow through non-linear gating units.
 
 -   The output of the block is recurrently connected back to the block input and all of the gates.
 
@@ -132,8 +124,6 @@ ggplot(mean_temp, aes(x = date, y = meantemp)) +
 
 We have used Min-Max transformation for data preparation. Here, we have used one LSTM layer as a simple LSTM model and a Dense layer is used as the output layer. Then, compile the model using the loss function, optimizer and metrics. This package is based on Keras and TensorFlow modules.[@paul2021performance]
 
-Usage: ts.lstm( ts, xreg = NULL, tsLag, xregLag = 0, LSTMUnits, DropoutRate = 0, Epochs = 10, CompLoss = "mse", CompMetrics = "mae", ActivationFn = "tanh", SplitRatio = 0.8, ValidationSplit = 0.1 )
-
 ## Min-Max Transformation
 
 ```{r}
@@ -144,6 +134,14 @@ mean_temp$transformed <- (mean_temp$meantemp - min(mean_temp$meantemp)) / (max(m
 ```
 
 We performed min-max transformation on our Mean Temperature to keep it in the range from (-1 to 1) as we are going to use *tanh* Gate for our model.
+
+![](Tanh_Image.png){top="100" right="100" fig-align="center" width="691" height="306"}
+
+## Coding and Tuning
+
+Usage: ts.lstm(ts=df\$transformed, tsLag=5, LSTMUnits=7, DropoutRate = 0.1, Epochs = 10, CompLoss = "mse", CompMetrics = "mae", ActivationFn = "tanh", SplitRatio = 0.99, ValidationSplit = 0.2)
+
+![](LSTMconclusion.png){top="100" right="100" fig-align="center" width="586" height="337"}
 
 ## LSTM
 
@@ -209,8 +207,6 @@ ggplot(data = Result) +
 ## Conclusion
 
 Our Time series prediction using LSTM has demonstrated promising results in forecasting accuracy. During the training phase, the root mean square error (RMSE) of 0.0800 and the mean absolute percentage error (MAPE) of 0.1258 indicate that the LSTM model was able to effectively capture the underlying patterns and trends in the training data.
-
-![](LSTMconclusion.png){top="100" right="100" fig-align="center" width="481" height="228"}
 
 ## Conclusion Cont..
 
