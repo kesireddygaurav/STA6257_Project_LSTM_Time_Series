@@ -188,6 +188,295 @@ mean_temp$transformed <- (mean_temp$meantemp - min(mean_temp$meantemp)) / (max(m
 
 We performed min-max transformation on our Mean Temperature to keep it in the range from (-1 to 1) as we are going to use *tanh* Gate for our model.
 
+### Lag=50
+
+```{r}
+library(TSLSTM)
+
+df <- mean_temp
+
+df$date<-as.Date(df$date)
+
+df$transformed<-as.numeric(df$transformed)
+
+# Convert the data to a time series object (ts)
+ts_data <- ts(df$transformed)
+ 
+TSLSTM <- ts.lstm(ts=ts_data,
+                 tsLag=50,
+                 LSTMUnits=7,
+                 DropoutRate = 0.1,
+                 Epochs = 10,
+                 CompLoss = "mse",
+                 CompMetrics = "mae",
+                 ActivationFn = "tanh",
+                 SplitRatio = 0.99,
+                 ValidationSplit = 0.2)
+ 
+#Return function
+trainFittedValue <- TSLSTM$TrainFittedValue
+testPredictedValue <- TSLSTM$TestPredictedValue
+accuracyTable <- TSLSTM$AccuracyTable
+
+Result50<-tail(df,15)
+
+Result50$S_pred<-testPredictedValue
+
+Result50$Prediction= Result50$S_pred * ( max(df$meantemp) - min(df$meantemp) ) + min(df$meantemp)
+```
+
+```{r}
+Result50$date <- as.Date(Result50$date)
+# Calculate label positions
+label_pos <- data.frame(label = c("Original", "Prediction"),
+                        y = c(max(Result50$meantemp), max(Result50$Prediction)),
+                        label_color = c("blue", "red"))
+ggplot(data = Result50) +
+  geom_line(aes(x = date, y = meantemp), color = "blue") +
+  geom_line(aes(x = date, y = Prediction), color = "red") +
+  labs(x = "Date", y = "Mean Temperature (°C)",  # Updated y-axis label with units
+       title = "Original Temperature Over Time for Lag 50") +  # Plot title
+  annotate("text", x = max(Result50$date) + 1, y = label_pos$y, 
+           label = label_pos$label, color = label_pos$label_color, vjust = 0.5) +
+  theme(axis.text.y = element_text(size = 12),   # Set font size for y-axis tick labels
+        axis.title.y = element_text(size = 14),  # Set font size for y-axis label
+        axis.text.x = element_text(size = 12),   # Set font size for x-axis tick labels
+        axis.title.x = element_text(size = 14),  # Set font size for x-axis label
+        plot.title = element_text(size = 16, hjust = 0.5))  # Set font size for plot title
+```
+
+
+### Lag=40
+
+```{r}
+library(TSLSTM)
+
+df <- mean_temp
+
+df$date<-as.Date(df$date)
+
+df$transformed<-as.numeric(df$transformed)
+
+# Convert the data to a time series object (ts)
+ts_data <- ts(df$transformed)
+ 
+TSLSTM <- ts.lstm(ts=ts_data,
+                 tsLag=40,
+                 LSTMUnits=7,
+                 DropoutRate = 0.1,
+                 Epochs = 10,
+                 CompLoss = "mse",
+                 CompMetrics = "mae",
+                 ActivationFn = "tanh",
+                 SplitRatio = 0.99,
+                 ValidationSplit = 0.2)
+ 
+#Return function
+trainFittedValue <- TSLSTM$TrainFittedValue
+testPredictedValue <- TSLSTM$TestPredictedValue
+accuracyTable <- TSLSTM$AccuracyTable
+
+Result40<-tail(df,15)
+
+Result40$S_pred<-testPredictedValue
+
+Result40$Prediction= Result40$S_pred * ( max(df$meantemp) - min(df$meantemp) ) + min(df$meantemp)
+```
+
+```{r}
+Result40$date <- as.Date(Result40$date)
+# Calculate label positions
+label_pos <- data.frame(label = c("Original", "Prediction"),
+                        y = c(max(Result40$meantemp), max(Result40$Prediction)),
+                        label_color = c("blue", "red"))
+ggplot(data = Result40) +
+  geom_line(aes(x = date, y = meantemp), color = "blue") +
+  geom_line(aes(x = date, y = Prediction), color = "red") +
+  labs(x = "Date", y = "Mean Temperature (°C)",  # Updated y-axis label with units
+       title = "Original Temperature Over Time for Lag 40") +  # Plot title
+  annotate("text", x = max(Result40$date) + 1, y = label_pos$y, 
+           label = label_pos$label, color = label_pos$label_color, vjust = 0.5) +
+  theme(axis.text.y = element_text(size = 12),   # Set font size for y-axis tick labels
+        axis.title.y = element_text(size = 14),  # Set font size for y-axis label
+        axis.text.x = element_text(size = 12),   # Set font size for x-axis tick labels
+        axis.title.x = element_text(size = 14),  # Set font size for x-axis label
+        plot.title = element_text(size = 16, hjust = 0.5))  # Set font size for plot title
+```
+
+### Lag=30
+
+```{r}
+library(TSLSTM)
+
+df <- mean_temp
+
+df$date<-as.Date(df$date)
+
+df$transformed<-as.numeric(df$transformed)
+
+# Convert the data to a time series object (ts)
+ts_data <- ts(df$transformed)
+ 
+TSLSTM <- ts.lstm(ts=ts_data,
+                 tsLag=30,
+                 LSTMUnits=7,
+                 DropoutRate = 0.1,
+                 Epochs = 10,
+                 CompLoss = "mse",
+                 CompMetrics = "mae",
+                 ActivationFn = "tanh",
+                 SplitRatio = 0.99,
+                 ValidationSplit = 0.2)
+ 
+#Return function
+trainFittedValue <- TSLSTM$TrainFittedValue
+testPredictedValue <- TSLSTM$TestPredictedValue
+accuracyTable <- TSLSTM$AccuracyTable
+
+Result30<-tail(df,15)
+
+Result30$S_pred<-testPredictedValue
+
+Result30$Prediction= Result30$S_pred * ( max(df$meantemp) - min(df$meantemp) ) + min(df$meantemp)
+```
+
+```{r}
+Result30$date <- as.Date(Result30$date)
+# Calculate label positions
+label_pos <- data.frame(label = c("Original", "Prediction"),
+                        y = c(max(Result30$meantemp), max(Result30$Prediction)),
+                        label_color = c("blue", "red"))
+ggplot(data = Result30) +
+  geom_line(aes(x = date, y = meantemp), color = "blue") +
+  geom_line(aes(x = date, y = Prediction), color = "red") +
+  labs(x = "Date", y = "Mean Temperature (°C)",  # Updated y-axis label with units
+       title = "Original Temperature Over Time for Lag 30") +  # Plot title
+  annotate("text", x = max(Result30$date) + 1, y = label_pos$y, 
+           label = label_pos$label, color = label_pos$label_color, vjust = 0.5) +
+  theme(axis.text.y = element_text(size = 12),   # Set font size for y-axis tick labels
+        axis.title.y = element_text(size = 14),  # Set font size for y-axis label
+        axis.text.x = element_text(size = 12),   # Set font size for x-axis tick labels
+        axis.title.x = element_text(size = 14),  # Set font size for x-axis label
+        plot.title = element_text(size = 16, hjust = 0.5))  # Set font size for plot title
+```
+
+### Lag=20
+
+```{r}
+library(TSLSTM)
+
+df <- mean_temp
+
+df$date<-as.Date(df$date)
+
+df$transformed<-as.numeric(df$transformed)
+
+# Convert the data to a time series object (ts)
+ts_data <- ts(df$transformed)
+ 
+TSLSTM <- ts.lstm(ts=ts_data,
+                 tsLag=20,
+                 LSTMUnits=7,
+                 DropoutRate = 0.1,
+                 Epochs = 10,
+                 CompLoss = "mse",
+                 CompMetrics = "mae",
+                 ActivationFn = "tanh",
+                 SplitRatio = 0.99,
+                 ValidationSplit = 0.2)
+ 
+#Return function
+trainFittedValue <- TSLSTM$TrainFittedValue
+testPredictedValue <- TSLSTM$TestPredictedValue
+accuracyTable <- TSLSTM$AccuracyTable
+
+Result20<-tail(df,15)
+
+Result20$S_pred<-testPredictedValue
+
+Result20$Prediction= Result20$S_pred * ( max(df$meantemp) - min(df$meantemp) ) + min(df$meantemp)
+```
+
+```{r}
+Result20$date <- as.Date(Result20$date)
+# Calculate label positions
+label_pos <- data.frame(label = c("Original", "Prediction"),
+                        y = c(max(Result20$meantemp), max(Result20$Prediction)),
+                        label_color = c("blue", "red"))
+ggplot(data = Result20) +
+  geom_line(aes(x = date, y = meantemp), color = "blue") +
+  geom_line(aes(x = date, y = Prediction), color = "red") +
+  labs(x = "Date", y = "Mean Temperature (°C)",  # Updated y-axis label with units
+       title = "Original Temperature Over Time for Lag 20") +  # Plot title
+  annotate("text", x = max(Result20$date) + 1, y = label_pos$y, 
+           label = label_pos$label, color = label_pos$label_color, vjust = 0.5) +
+  theme(axis.text.y = element_text(size = 12),   # Set font size for y-axis tick labels
+        axis.title.y = element_text(size = 14),  # Set font size for y-axis label
+        axis.text.x = element_text(size = 12),   # Set font size for x-axis tick labels
+        axis.title.x = element_text(size = 14),  # Set font size for x-axis label
+        plot.title = element_text(size = 16, hjust = 0.5))  # Set font size for plot title
+```
+
+
+### Lag=10
+
+```{r}
+library(TSLSTM)
+
+df <- mean_temp
+
+df$date<-as.Date(df$date)
+
+df$transformed<-as.numeric(df$transformed)
+
+# Convert the data to a time series object (ts)
+ts_data <- ts(df$transformed)
+ 
+TSLSTM <- ts.lstm(ts=ts_data,
+                 tsLag=10,
+                 LSTMUnits=7,
+                 DropoutRate = 0.1,
+                 Epochs = 10,
+                 CompLoss = "mse",
+                 CompMetrics = "mae",
+                 ActivationFn = "tanh",
+                 SplitRatio = 0.99,
+                 ValidationSplit = 0.2)
+ 
+#Return function
+trainFittedValue <- TSLSTM$TrainFittedValue
+testPredictedValue <- TSLSTM$TestPredictedValue
+accuracyTable <- TSLSTM$AccuracyTable
+
+Result15<-tail(df,15)
+
+Result15$S_pred<-testPredictedValue
+
+Result15$Prediction= Result15$S_pred * ( max(df$meantemp) - min(df$meantemp) ) + min(df$meantemp)
+```
+
+```{r}
+Result15$date <- as.Date(Result15$date)
+# Calculate label positions
+label_pos <- data.frame(label = c("Original", "Prediction"),
+                        y = c(max(Result15$meantemp), max(Result15$Prediction)),
+                        label_color = c("blue", "red"))
+ggplot(data = Result15) +
+  geom_line(aes(x = date, y = meantemp), color = "blue") +
+  geom_line(aes(x = date, y = Prediction), color = "red") +
+  labs(x = "Date", y = "Mean Temperature (°C)",  # Updated y-axis label with units
+       title = "Original Temperature Over Time for Lag 10") +  # Plot title
+  annotate("text", x = max(Result15$date) + 1, y = label_pos$y, 
+           label = label_pos$label, color = label_pos$label_color, vjust = 0.5) +
+  theme(axis.text.y = element_text(size = 12),   # Set font size for y-axis tick labels
+        axis.title.y = element_text(size = 14),  # Set font size for y-axis label
+        axis.text.x = element_text(size = 12),   # Set font size for x-axis tick labels
+        axis.title.x = element_text(size = 14),  # Set font size for x-axis label
+        plot.title = element_text(size = 16, hjust = 0.5))  # Set font size for plot title
+```
+
+### Lag=5
+
 ```{r}
 library(TSLSTM)
 
@@ -216,12 +505,13 @@ trainFittedValue <- TSLSTM$TrainFittedValue
 testPredictedValue <- TSLSTM$TestPredictedValue
 accuracyTable <- TSLSTM$AccuracyTable
 
-Result<-tail(df,15)
+Result5<-tail(df,15)
 
-Result$S_pred<-testPredictedValue
+Result5$S_pred<-testPredictedValue
 
-Result$Prediction= Result$S_pred * ( max(df$meantemp) - min(df$meantemp) ) + min(df$meantemp)
+Result5$Prediction= Result5$S_pred * ( max(df$meantemp) - min(df$meantemp) ) + min(df$meantemp)
 ```
+
 
 #### Accuracy table
 
@@ -233,17 +523,17 @@ print(accuracyTable)
 #### Model Validation plot
 
 ```{r}
-Result$date <- as.Date(Result$date)
+Result5$date <- as.Date(Result5$date)
 # Calculate label positions
 label_pos <- data.frame(label = c("Original", "Prediction"),
-                        y = c(max(Result$meantemp), max(Result$Prediction)),
+                        y = c(max(Result5$meantemp), max(Result5$Prediction)),
                         label_color = c("blue", "red"))
-ggplot(data = Result) +
+ggplot(data = Result5) +
   geom_line(aes(x = date, y = meantemp), color = "blue") +
   geom_line(aes(x = date, y = Prediction), color = "red") +
   labs(x = "Date", y = "Mean Temperature (°C)",  # Updated y-axis label with units
-       title = "Original Temperature Over Time") +  # Plot title
-  annotate("text", x = max(Result$date) + 1, y = label_pos$y, 
+       title = "Original Temperature Over Time for Lag 5") +  # Plot title
+  annotate("text", x = max(Result5$date) + 1, y = label_pos$y, 
            label = label_pos$label, color = label_pos$label_color, vjust = 0.5) +
   theme(axis.text.y = element_text(size = 12),   # Set font size for y-axis tick labels
         axis.title.y = element_text(size = 14),  # Set font size for y-axis label
@@ -251,6 +541,10 @@ ggplot(data = Result) +
         axis.title.x = element_text(size = 14),  # Set font size for x-axis label
         plot.title = element_text(size = 16, hjust = 0.5))  # Set font size for plot title
 ```
+
+## Decision
+
+As we can see from the graphs, for Lag 50,40,30,20,10 and 5 we are getting the best prediction for **Lag=5**. Our prediction is matching the trend with actual data. So we are finalizing Lag=5 for our model.
 
 ### Conclusion
 
